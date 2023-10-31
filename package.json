@@ -9,7 +9,7 @@
     "npm": ">= 6"
   },
   "scripts": {
-    "generate:cstableBalances": "npx tsx src/calculate-cstable-balances-average.ts",
+    "generate:cstableBalances": "npx tsx src/snapshots/cstable-balances/index.ts",
     "start": "bun generate:cstableBalances"
   },
   "author": "",

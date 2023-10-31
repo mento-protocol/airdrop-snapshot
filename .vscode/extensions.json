@@ -1,6 +1,7 @@
 {
   "recommendations": [
     "inferrinizzard.prettier-sql-vscode",
-    "rigogsilva.trinols"
+    "rigogsilva.trinols",
+    "mechatroner.rainbow-csv"
   ]
 }
