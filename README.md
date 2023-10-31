@@ -19,8 +19,9 @@ The average cStable balance (cUSD/cEUR/cREAL) denominated in USD across a 1-year
 
 ### Calculation Method
 
-- We took 12 snapshots, 1 per month from November 15 2022 to October 15 2023, of addresses who held any cStables on the date of the snapshot
-- Minimum cUSD OR cEUR OR cREAL balance must have been > 10
-- Converted the cStables balances into USD using the exchange rate at the time of the respective snapshot
-- Calculated the average cStable balance in USD over all 12 snapshots
+- We took 12 monthly snapshots, 1 per month from November 15 2022 to October 15 2023, of addresses who held any cStables on the date of the snapshot
+- Minimum cUSD OR cEUR OR cREAL balance must have been > 10 to be included in the monthly snapshots
+- Converted the cStables balances into USD using the exchange rate at the time of the respective monthly snapshot
+- Calculated the average cStable balance in USD over all 12 monthly snapshots
+- Filtered out addresses with less than $10 in average cStable balances across all snapshots
 - Filtered out validator addresses (because for technical reasons their cUSD balances can't be correctly calculated by indexers, concretely the block rewards paid in cUSD to validators do not emit `Transfer` events that indexers pick up)
