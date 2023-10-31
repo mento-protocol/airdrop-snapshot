@@ -5,6 +5,8 @@ import getValidators from './get-validators.js'
 import filterOutValidators from './filter-out-validators.js'
 import generateOutputCsv from './generate-csv-output-file.js'
 import bold from '../../helpers/bold.js'
+import filterOutSmallBalances from './filter-out-small-balances.js'
+import calculateAverageBalances from './calculate-average-balances.js'
 
 // Our main object we'll use to sum up balances for each address across all snapshots
 export type Balances = {
@@ -18,46 +20,45 @@ export type Balances = {
     cREAL: number
   }
 }
-const balances: Balances = {}
 
-// Process all individual snapshot files and aggregate total balances per address
+// Process all individual snapshot files and populate balances object with aggregate total balances across all snapshots
+const totalBalances: Balances = {}
 for (const file of await getSnapshotFilesFrom(
-  'src/snapshots/cstable-balances/individual-snapshots'
+  'src/snapshots/cstable-balances/individual-monthly-snapshots'
 )) {
-  await processSnapshotFile(file, balances)
+  await processSnapshotFile(file, totalBalances)
 }
 
 console.log('') // output formatting
 
-// Create CSV file including all addresses with average balances over 12 snapshots
-const balancesSortedByTotal = sortBalancesByTotal(balances)
-await generateOutputCsv(
-  balancesSortedByTotal,
-  'src/snapshots/cstable-balances/total-average-across-all-snapshots.csv'
-)
-
-// Create CSV file filtering out all validator addresses
-const validators = await getValidators()
-
+const averageBalances = calculateAverageBalances(totalBalances)
+const balancesExcludingDust = filterOutSmallBalances(averageBalances) // Min. average balance for eligibility is > $10
+const balancesSortedByTotal = sortBalancesByTotal(balancesExcludingDust)
 const balancesExcludingValidators = filterOutValidators(
   balancesSortedByTotal,
-  validators
+  await getValidators()
 )
+
+// Create final CSV output file
 await generateOutputCsv(
   balancesExcludingValidators,
   'src/snapshots/cstable-balances/total-average-across-all-snapshots-excluding-validators.csv'
 )
 
+console.log('') // output formatting
 console.log(
-  `\nℹ️  There are ${bold(
-    String(Object.keys(balancesSortedByTotal).length) +
-      ' eligible addresses in total'
-  )}`
+  `ℹ️  ${bold(
+    String(Object.keys(averageBalances).length)
+  )} total addresses in individual snapshots'`
 )
-
 console.log(
-  `ℹ️  There are ${bold(
+  `ℹ️  ${bold(
+    String(Object.keys(balancesExcludingDust).length)
+  )} addresses with >= $10 in average balances'`
+)
+console.log(
+  `ℹ️  ${bold(
     String(Object.keys(balancesExcludingValidators).length) +
-      ' addresses excluding validators'
+      ' total eligible addresses (excluding validators)'
   )}`
 )

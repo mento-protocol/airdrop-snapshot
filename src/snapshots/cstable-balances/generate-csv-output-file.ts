@@ -15,10 +15,7 @@ export default async function generateOutputCsv(
         const { total, cUSDinUSD, cEURinUSD, cREALinUSD, cUSD, cEUR, cREAL } =
           balances[address]
 
-        // 12 snapshot files = sum of all balances / 12 = average balances across all snapshots
-        return `${address},${total / 12},${cUSDinUSD / 12},${cEURinUSD / 12},${
-          cREALinUSD / 12
-        },${cUSD / 12},${cEUR / 12},${cREAL / 12}`
+        return `${address},${total},${cUSDinUSD},${cEURinUSD},${cREALinUSD},${cUSD},${cEUR},${cREAL}`
       })
       .join('\n')
 
