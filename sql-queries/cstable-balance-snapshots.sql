@@ -25,9 +25,7 @@
 -- 1. Add column with labels
 --   Dune has labeled many addresses (i.e. as "Institution", or "Kraken Deposit" etc).
 --   To filter out addresses that shouldn't be eligible we could add a column that 
---   combines all labels which would require a bit of JOIN + string aggregation magic
---   
---   See: https://dune.com/docs/data-tables/spellbook/top-tables/labels/
+--  combines all labels which would require a bit of JOIN + string aggregation magic
 WITH
     --
     --
@@ -239,6 +237,22 @@ SELECT
     COALESCE(cUSD.balance * cUSD.price, 0) "cUSD in USD",
     COALESCE(cEUR.balance * cEUR.price, 0) "cEUR in USD",
     COALESCE(cREAL.balance * cREAL.price, 0) "cREAL in USD",
+    -- including a column with address metadata for contract addresses to simplify manual snapshot review
+    CASE
+    -- If there's a contract creation TX hash for this address, it means it should be contract (and not an EOA)
+        WHEN creation_trace.tx_hash IS NOT NULL THEN (
+            CASE
+            -- If the address is on the safe_celo.safes Dune table, label it as 'Gnosis Safe'
+                WHEN gnosis_safe.tx_hash IS NOT NULL THEN 'Gnosis Safe'
+                -- else if Dune has a contract name (available for many verified contracts), use the contract name.
+                -- (annoyingly, some contracts have more than 1 name which is why this complicated merging of contract names into 1 column is required)
+                WHEN array_join (array_agg (contract.name), ', ') != '' THEN array_join (array_agg (contract.name), ', ')
+                -- else tag it as 'unverified'
+                ELSE 'unverified'
+            END
+        )
+        ELSE NULL
+    END AS "Contract",
     cUSD.balance "cUSD Balance",
     cEUR.balance "cEUR Balance",
     cREAL.balance "cREAL Balance"
@@ -249,5 +263,19 @@ FROM
         cEUR.address = cREAL.address
         OR cUSD.address = cREAL.address
     )
+    LEFT JOIN celo.contracts "contract" ON contract.address = COALESCE(cUSD.address, cEUR.address, cREAL.address)
+    LEFT JOIN celo.creation_traces "creation_trace" ON creation_trace.address = COALESCE(cUSD.address, cEUR.address, cREAL.address)
+    LEFT JOIN safe_celo.safes "gnosis_safe" ON gnosis_safe.address = COALESCE(cUSD.address, cEUR.address, cREAL.address)
+GROUP BY
+    COALESCE(cUSD.address, cEUR.address, cREAL.address),
+    COALESCE(cUSD.balance * cUSD.price, 0) + COALESCE(cEUR.balance * cEUR.price, 0) + COALESCE(cREAL.balance * cREAL.price, 0),
+    COALESCE(cUSD.balance * cUSD.price, 0),
+    COALESCE(cEUR.balance * cEUR.price, 0),
+    COALESCE(cREAL.balance * cREAL.price, 0),
+    creation_trace.tx_hash,
+    gnosis_safe.tx_hash,
+    cUSD.balance,
+    cEUR.balance,
+    cREAL.balance
 ORDER BY
     COALESCE(cUSD.balance * cUSD.price, 0) + COALESCE(cEUR.balance * cEUR.price, 0) + COALESCE(cREAL.balance * cREAL.price, 0) DESC
