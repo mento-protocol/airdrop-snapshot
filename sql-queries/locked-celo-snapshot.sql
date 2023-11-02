@@ -35,7 +35,12 @@ SELECT
     --   locked_balances.address as Address,
     '<a href=https://celoscan.io/address/' || cast(locked_balances.address as varchar) || ' target=_blank>' || cast(locked_balances.address as varchar) || '</a>' as Address,
     locked_balances.balance as "Locked CELO",
+    CASE
+        WHEN creation_trace.tx_hash IS NOT NULL THEN 'Contract'
+        ELSE NULL
+    END AS "Contract"
 FROM
     locked_balances
+    LEFT JOIN celo.creation_traces "creation_trace" ON creation_trace.address = locked_balances.address
 ORDER BY
     balance DESC
