@@ -32,8 +32,9 @@ WITH
             balance DESC
     )
 SELECT
-    address as Address,
-    balance as "Locked CELO"
+    --   locked_balances.address as Address,
+    '<a href=https://celoscan.io/address/' || cast(locked_balances.address as varchar) || ' target=_blank>' || cast(locked_balances.address as varchar) || '</a>' as Address,
+    locked_balances.balance as "Locked CELO",
 FROM
     locked_balances
 ORDER BY

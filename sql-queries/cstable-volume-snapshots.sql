@@ -199,7 +199,11 @@ WITH
     -- Combine total volumes into final output table
     --
 SELECT
-    COALESCE(cUSD.address, cEUR.address, cREAL.address) "Address",
+    '<a href=https://celoscan.io/address/' || cast(
+        COALESCE(cUSD.address, cEUR.address, cREAL.address) as varchar
+    ) || ' target=_blank>' || cast(
+        COALESCE(cUSD.address, cEUR.address, cREAL.address) as varchar
+    ) || '</a>' as Address,
     COALESCE(cUSD.volume_in_usd, 0) + COALESCE(cEUR.volume_in_usd, 0) + COALESCE(cREAL.volume_in_usd, 0) "Total Volume in USD",
     cUSD.volume_in_usd "cUSD Volume in USD",
     cEUR.volume_in_usd "cEUR Volume in USD",

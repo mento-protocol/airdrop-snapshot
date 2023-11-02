@@ -28,7 +28,6 @@
 --  combines all labels which would require a bit of JOIN + string aggregation magic
 WITH
     --
-    --
     -- cUSD
     --
     --
@@ -232,7 +231,11 @@ WITH
     --
     --
 SELECT
-    COALESCE(cUSD.address, cEUR.address, cREAL.address) Address,
+    '<a href=https://celoscan.io/address/' || cast(
+        COALESCE(cUSD.address, cEUR.address, cREAL.address) as varchar
+    ) || ' target=_blank>' || cast(
+        COALESCE(cUSD.address, cEUR.address, cREAL.address) as varchar
+    ) || '</a>' as Address,
     COALESCE(cUSD.balance * cUSD.price, 0) + COALESCE(cEUR.balance * cEUR.price, 0) + COALESCE(cREAL.balance * cREAL.price, 0) "Total cStables in USD",
     COALESCE(cUSD.balance * cUSD.price, 0) "cUSD in USD",
     COALESCE(cEUR.balance * cEUR.price, 0) "cEUR in USD",
