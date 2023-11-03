@@ -1,11 +1,21 @@
 import getBlockNumberForDate from './getBlockNumberForDate.js'
-import getAddresses from './getAddresses.js'
+import getAddressesFromCsv from './getAddressesFromCsv.js'
 import getBalancesAtBlockNumber from './getBalancesAtBlockNumber.js'
 import writeBalancesToCsv from './writeBalancesToCsv.js'
 import sortBalances from './sortBalances.js'
+import transformDateToFilename from '../../helpers/transformDateToFilename.js'
+import checkIfFileNameAndSnapshotTimeColumnMatch from './checkIfFileNameAndSnapshotTimeColumnMatch.js'
+import loadCsv from './loadCsv.js'
+import checkIfOutputFileExists from './checkIfOutputFileExists.js'
+import estimateCheckTime from './estimateCheckTime.js'
 
-// cli output formatting
-console.log('')
+export type InputCsv = [
+  `0x${string}`,
+  `<a href=${string}`,
+  string,
+  'Contract' | '',
+  string
+]
 
 const snapshotDates = [
   new Date('2022-11-15 12:00 UTC'),
@@ -22,14 +32,29 @@ const snapshotDates = [
   new Date('2023-10-15 12:00 UTC'),
 ]
 
-// TODO: Replace hardcoding once we iterate over all snapshots
-const blockNumberForSnapshotDate = await getBlockNumberForDate(
-  snapshotDates.at(-1) as Date
-)
-const addresses = await getAddresses('test.csv')
-const balances = await getBalancesAtBlockNumber(
-  addresses,
-  blockNumberForSnapshotDate
-)
-const sortedBalances = sortBalances(balances)
-await writeBalancesToCsv(sortedBalances, 'output.csv')
+// cli output formatting
+console.log('')
+
+for (const date of snapshotDates) {
+  const snapshotFileName = transformDateToFilename(date)
+  const inputFileName = `dune-snapshots/${snapshotFileName}.in.csv`
+  const outputFileName = `locked-celo-balances/contract-snapshots/${snapshotFileName}.out.csv`
+
+  // Fetching thousands of balances is expensive, exit early if we already have the data locally
+  if (await checkIfOutputFileExists(outputFileName)) {
+    continue
+  }
+
+  const inputCsv = await loadCsv<InputCsv>(inputFileName)
+
+  // Sanity check against human error during manual export from Dune into CSV
+  checkIfFileNameAndSnapshotTimeColumnMatch(inputFileName, inputCsv)
+
+  const addresses = getAddressesFromCsv(inputCsv)
+  estimateCheckTime(addresses)
+
+  const blockNumber = await getBlockNumberForDate(date)
+  const balances = await getBalancesAtBlockNumber(addresses, blockNumber)
+  const sortedBalances = sortBalances(balances)
+  await writeBalancesToCsv(sortedBalances, outputFileName)
+}

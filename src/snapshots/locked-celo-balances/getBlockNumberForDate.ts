@@ -14,32 +14,45 @@ export default async function getBlockNumberForDate(
   const spinner = ora(
     `Fetching block number for ${bold(targetDate.toUTCString())}...`
   ).start()
-  const client = getClient(RPC_URL)
 
-  let lowerBound = BigInt(0)
-  let upperBound = await client.getBlockNumber()
-  let currentDate: Date
+  try {
+    const client = getClient(RPC_URL)
+    let lowerBound = BigInt(0)
+    let upperBound = await client.getBlockNumber()
+    let currentDate: Date
 
-  while (lowerBound <= upperBound) {
-    const middleBlockNumber = lowerBound + (upperBound - lowerBound) / BigInt(2)
-    const middleBlock = await client.getBlock({
-      blockNumber: BigInt(middleBlockNumber),
-    })
-    currentDate = new Date(Number(middleBlock.timestamp) * 1000) // Convert to milliseconds
+    while (lowerBound <= upperBound) {
+      const middleBlockNumber =
+        lowerBound + (upperBound - lowerBound) / BigInt(2)
+      const middleBlock = await client.getBlock({
+        blockNumber: BigInt(middleBlockNumber),
+      })
 
-    if (currentDate < targetDate) {
-      lowerBound = middleBlockNumber + BigInt(1)
-    } else if (currentDate > targetDate) {
-      upperBound = middleBlockNumber - BigInt(1)
-    } else {
-      return middleBlockNumber
+      currentDate = new Date(Number(middleBlock.timestamp) * 1000) // Convert to milliseconds
+
+      if (currentDate < targetDate) {
+        lowerBound = middleBlockNumber + BigInt(1)
+      } else if (currentDate > targetDate) {
+        upperBound = middleBlockNumber - BigInt(1)
+      } else {
+        spinner.succeed(
+          `Fetched block number for ${targetDate.toUTCString()}: ${bold(
+            lowerBound.toString()
+          )}`
+        )
+        return middleBlockNumber
+      }
     }
-  }
 
-  spinner.succeed(
-    `Fetched block number for ${targetDate.toUTCString()}: ${bold(
-      lowerBound.toString()
-    )}`
-  )
-  return lowerBound
+    spinner.succeed(
+      `Fetched block number for ${targetDate.toUTCString()}: ${bold(
+        lowerBound.toString()
+      )}`
+    )
+
+    return lowerBound
+  } catch (error) {
+    spinner.fail(`Couldn't fetch block number for ${targetDate.toUTCString()}`)
+    throw error
+  }
 }

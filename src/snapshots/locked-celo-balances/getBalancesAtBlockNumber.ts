@@ -17,28 +17,39 @@ export default async function getBalancesAtBlockNumber(
   blockNumber: bigint
 ): Promise<Balances> {
   const spinner = ora(
-    'Fetching locked Celo balance for each address from archive node...'
+    `Fetching locked Celo balance for ${addresses.length} addresses from archive node...`
   ).start()
 
   // Our main object we want to populate with LockedCelo balances on a given snapshot date
   const balances: Balances = {}
 
-  for (const address of addresses) {
-    const balance = await getLockedCeloBalanceForBlock(address, blockNumber)
-    balances[address] = balance
-    if (process.env.DEBUG) {
-      console.log(
-        Number(formatEther(balance)).toLocaleString('en-us', {
-          maximumFractionDigits: 2,
-        })
-      )
+  try {
+    for (let i = 0; i < addresses.length; i++) {
+      spinner.suffixText = i.toString()
+      const address = addresses[i]
+      const balance = await getLockedCeloBalanceForBlock(address, blockNumber)
+      balances[address] = balance
+      if (process.env.DEBUG) {
+        console.log(
+          Number(formatEther(balance)).toLocaleString('en-us', {
+            maximumFractionDigits: 2,
+          })
+        )
+      }
     }
-  }
-  spinner.succeed(
-    `Fetched all balances for block number ${bold(blockNumber.toString())}`
-  )
+    spinner.succeed(
+      `Fetched all balances for block number ${bold(blockNumber.toString())}`
+    )
 
-  return balances
+    return balances
+  } catch (error) {
+    spinner.fail(
+      `Failed to fetch balances for block number ${bold(
+        blockNumber.toString()
+      )}`
+    )
+    throw error
+  }
 }
 
 async function getLockedCeloBalanceForBlock(
