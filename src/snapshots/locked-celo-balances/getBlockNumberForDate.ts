@@ -36,8 +36,8 @@ export default async function getBlockNumberForDate(
         upperBound = middleBlockNumber - BigInt(1)
       } else {
         spinner.succeed(
-          `Fetched block number for ${targetDate.toUTCString()}: ${bold(
-            lowerBound.toString()
+          `Fetched block number ${bold(lowerBound.toString())} for ${bold(
+            targetDate.toUTCString()
           )}`
         )
         return middleBlockNumber

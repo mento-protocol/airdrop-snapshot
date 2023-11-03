@@ -3,14 +3,23 @@ import fs from 'node:fs/promises'
 import { parse } from 'csv-parse/sync'
 import ora from 'ora'
 import bold from '../../helpers/bold.js'
+import type { InputCsv } from './index.js'
 
-export default async function load<T>(fileName: string): Promise<T> {
+export default async function load(fileName: string): Promise<InputCsv> {
   const spinner = ora(`Loading CSV file ${bold(fileName)}...`).start()
 
   try {
-    const csv = await fs.readFile(new URL(fileName, import.meta.url))
-    const rows = parse(csv) as T
-    spinner.succeed(`Loaded CSV file ${bold(path.basename(fileName))}.`)
+    const fullPath = new URL(
+      process.cwd() + '/src/snapshots/locked-celo-balances/' + fileName,
+      import.meta.url
+    )
+    const csv = await fs.readFile(fullPath)
+    const rows = parse(csv) as InputCsv
+    spinner.succeed(
+      `Loaded CSV file ${bold(path.basename(fileName))} with ${bold(
+        String(rows.length)
+      )} rows.`
+    )
 
     return rows
   } catch (error) {

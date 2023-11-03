@@ -14,11 +14,17 @@ export default async function writeBalancesToCsv(
     let csvData = 'Address,Locked Celo Balance,Snapshot Date\n'
     csvData += Object.keys(balances)
       .map((address) => {
-        return `${address},${balances[address]},${path.basename(fileName)}`
+        return `${address},${balances[address]},${path
+          .basename(fileName)
+          .replace('.out.csv', '')}`
       })
       .join('\n')
 
-    await fs.writeFile(new URL(fileName, import.meta.url), csvData)
+    const fullPath = new URL(
+      process.cwd() + '/src/snapshots/locked-celo-balances/' + fileName,
+      import.meta.url
+    )
+    await fs.writeFile(fullPath, csvData)
     spinner.succeed(`Wrote balances to ${bold(fileName)}`)
   } catch (error) {
     spinner.fail(`Failed to write balances to ${bold(fileName)}`)

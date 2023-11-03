@@ -32,20 +32,19 @@ const snapshotDates = [
   new Date('2023-10-15 12:00 UTC'),
 ]
 
-// cli output formatting
-console.log('')
-
 for (const date of snapshotDates) {
+  // cli output formatting
+  console.log('')
   const snapshotFileName = transformDateToFilename(date)
   const inputFileName = `dune-snapshots/${snapshotFileName}.in.csv`
-  const outputFileName = `locked-celo-balances/contract-snapshots/${snapshotFileName}.out.csv`
+  const outputFileName = `contract-snapshots/${snapshotFileName}.out.csv`
 
   // Fetching thousands of balances is expensive, exit early if we already have the data locally
   if (await checkIfOutputFileExists(outputFileName)) {
     continue
   }
 
-  const inputCsv = await loadCsv<InputCsv>(inputFileName)
+  const inputCsv = await loadCsv(inputFileName)
 
   // Sanity check against human error during manual export from Dune into CSV
   checkIfFileNameAndSnapshotTimeColumnMatch(inputFileName, inputCsv)
