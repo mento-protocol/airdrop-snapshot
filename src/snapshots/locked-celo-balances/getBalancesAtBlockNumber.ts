@@ -46,6 +46,7 @@ export default async function getBalancesAtBlockNumber(
         String(addresses.length)
       )} balances at block number ${bold(blockNumber.toString())}`
     )
+    spinner.suffixText = ''
 
     return balances
   } catch (error) {
