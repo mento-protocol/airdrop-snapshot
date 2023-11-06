@@ -2,11 +2,11 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { finished } from 'node:stream/promises'
 import { parse } from 'csv-parse'
-import type { Balances } from './index.js'
+import type { CStableBalances } from './index.js'
 
-export default async function processSnapshotFile(
+export default async function processSnapshotCsv(
   file: string,
-  balances: Balances
+  balances: CStableBalances
 ) {
   console.log('Processing snapshot:', path.basename(file))
   const parser = fs.createReadStream(file).pipe(

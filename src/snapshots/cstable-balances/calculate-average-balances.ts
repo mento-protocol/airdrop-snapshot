@@ -1,7 +1,7 @@
-import type { Balances } from './index.ts'
+import type { CStableBalances } from './index.ts'
 
 // Returns the average balances calculated as total balances / 12 snapshots
-export default function calculateAverageBalances(balances: Balances) {
+export default function calculateAverageBalances(balances: CStableBalances) {
   return Object.fromEntries(
     Object.entries(balances).map(([address, bal]) => {
       return [

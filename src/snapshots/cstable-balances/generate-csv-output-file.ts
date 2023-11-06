@@ -1,9 +1,9 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import type { Balances } from './index.js'
+import type { CStableBalances } from './index.js'
 
 export default async function generateOutputCsv(
-  balances: Balances,
+  balances: CStableBalances,
   outputPath: string
 ) {
   try {

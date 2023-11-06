@@ -1,15 +1,15 @@
-import getSnapshotFilesFrom from './get-snapshot-files.js'
-import processSnapshotFile from './process-snapshot-file.js'
-import sortBalancesByTotal from './sort-balances-by-total.js'
-import getValidators from './get-validators.js'
-import filterOutValidators from './filter-out-validators.js'
-import generateOutputCsv from './generate-csv-output-file.js'
 import bold from '../../helpers/bold.js'
-import filterOutSmallBalances from './filter-out-small-balances.js'
 import calculateAverageBalances from './calculate-average-balances.js'
+import filterOutSmallBalances from './filter-out-small-balances.js'
+import filterOutValidators from '../../helpers/filter-out-validators.js'
+import generateOutputCsv from './generate-csv-output-file.js'
+import getValidators from '../../helpers/get-validators.js'
+import loadDuneSnapshotFiles from './load-dune-snapshot-files.js'
+import processSnapshotCsv from './process-snapshot-csv.js'
+import sortBalancesByTotal from './sort-balances-by-total.js'
 
 // Our main object we'll use to sum up balances for each address across all snapshots
-export type Balances = {
+export type CStableBalances = {
   [address: string]: {
     total: number
     cUSDinUSD: number
@@ -22,11 +22,11 @@ export type Balances = {
 }
 
 // Process all individual snapshot files and populate balances object with aggregate total balances across all snapshots
-const totalBalances: Balances = {}
-for (const file of await getSnapshotFilesFrom(
+const totalBalances: CStableBalances = {}
+for (const file of await loadDuneSnapshotFiles(
   'src/snapshots/cstable-balances/individual-monthly-snapshots'
 )) {
-  await processSnapshotFile(file, totalBalances)
+  await processSnapshotCsv(file, totalBalances)
 }
 
 console.log('') // output formatting
@@ -45,9 +45,8 @@ await generateOutputCsv(
   'src/snapshots/cstable-balances/total-average-across-all-snapshots-excluding-validators.csv'
 )
 
-console.log('') // output formatting
 console.log(
-  `ℹ️  ${bold(
+  `\nℹ️  ${bold(
     String(Object.keys(averageBalances).length)
   )} total addresses in individual snapshots'`
 )
