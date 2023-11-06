@@ -1,19 +1,30 @@
 # Airgrab Snapshots
 
-This repo will contain 3 snapshots as per the eligibility criteria provided in [#289](https://github.com/mento-protocol/mento-general/issues/289)
+This repo contains 3 snapshots as per the eligibility criteria provided in [#289](https://github.com/mento-protocol/mento-general/issues/289)
 
 ## 1. Locked CELO
 
-TBD
+- **[Final Snapshot - Locked CELO](./final-snapshots/locked-celo-balances.csv)**
+- [Dune Query that was used to export 12 snapshot CSVs](https://dune.com/queries/3164542/5281325)
+
+### Calculation Method
+
+- Export 12 snapshot CSVs using the above Dune query to generate a list of addresses that had locked Celo until the snapshot time
+  - **❗ Note that the Dune query results on their own are incorrect as they do not factor in accrued yield from locking over time ❗**
+  - Dune can only index emitted `GoldLocked` and `GoldUnlocked` events, so Dune balances should always be lower than the actual on-chain balance was
+- Given the list of Dune-generated addresses, fetch the actual LockedCelo balance at the snapshot time from a Celo archive node
+- Sum up actual LockedCelo balances at all 12 snapshots
+- Calculate the average LockedCelo over all 12 snapshots
+- Filter out addresses with less than 10 in average LockedCelo
 
 ## 2. cStables Volume
 
 The total cStable volume (cUSD + cEUR + cREAL) across a 1-year timeframe.
 
-Volume is defined as all cStable transfers **from** an address + all cStable transfers **to** an address
+Volume is defined as all cStable transfers **from** an address + all cStable transfers **to** an address.
 
+- **[Final Snapshot - cStable Volume](./final-snapshots/cstable-volume.csv)**
 - [Dune Query that was used to export final snapshot CSV](https://dune.com/queries/3163689/5279843)
-- [cStable Volume Snapshot](./src/snapshots/cstable-volume/cstable-volume-snapshot.csv)
 
 ### Calculation Method
 
@@ -24,31 +35,31 @@ Volume is defined as all cStable transfers **from** an address + all cStable tra
 
 ### Example
 
-- Bob has sent 10 cUSD at day 1 of the snapshot period
-- Bob received 5 cUSD at day 100 of the snapshot period
-- Bob has send 10 cEUR at day 365 of the snapshot period
+- Bob sent 10 cUSD on day 1 of the snapshot period
+- Bob received 5 cUSD on day 100 of the snapshot period
+- Bob has sent 10 cEUR at day 365 of the snapshot period
 - The average cEUR/USD exchange rate over the 365 days snapshot period was 1.05
-- Bob has a total volume of: 10 cUSD (spent) + 5 cUSD (received) + (10 cEUR * 1.05 exchange rate = 10.5 cUSD) = $25.5 total volume
+- Bob has a total volume of 10 cUSD (spent) + 5 cUSD (received) + (10 cEUR * 1.05 exchange rate = 10.5 cUSD) = $25.5 total volume
 
 ## 3. cStables Balances
 
 The average cStable balance (cUSD/cEUR/cREAL) denominated in USD across a 1-year timeframe.
 
-- [cStable Balances Snapshot](./src/snapshots/cstable-balances/total-average-across-all-snapshots-excluding-validators.csv)
+- [Final Snapshot - cStable Balances](./final-snhapshots/cstable-balances)
 - [Dune Query that was used to export 12 snapshot CSVs at different dates](https://dune.com/queries/3144937/5269961)
 
 ### Calculation Method
 
-- Take 12 monthly snapshots, 1 per month from November 15 2022 to October 15 2023, of addresses who held any cStables on the date of the snapshot
+- Take 12 monthly snapshots, 1 per month from November 15, 2022, to October 15, 2023, of addresses that held any cStables on the date of the snapshot
 - Minimum cUSD OR cEUR OR cREAL balance must have been > 10 to be included in the monthly snapshots
 - Converted the cStables balances into USD using the exchange rate at the time of the respective monthly snapshot
 - Calculated the average cStable balance in USD over all 12 monthly snapshots
 - Filtered out addresses with less than $10 in average cStable balances across all snapshots
-- Filtered out validator addresses (because for technical reasons their cUSD balances can't be correctly calculated by indexers, concretely the block rewards paid in cUSD to validators do not emit `Transfer` events that indexers pick up)
+- Filtered out validator addresses (because, for technical reasons, their cUSD balances can't be correctly calculated by indexers. Concretely, the block rewards paid in cUSD to validators do not emit `Transfer` events that indexers pick up)
 
 ### Example
 
-- Prior to snapshot 1 (15.11.2022 12pm UTC), Alice had received 55 cUSD and spent 5 cUSD
+- Before snapshot 1 (15.11.2022 12 pm UTC), Alice had received 55 cUSD and spent 5 cUSD
 - Therefore, Alice's balance at snapshot 1 was 50 cUSD (55 - 5)
 - She doesn't send or receive any further transactions until one day before snapshot 12
 - One day before snapshot 12, Alice receives 100 cEUR
