@@ -1,6 +1,7 @@
 import { parse } from 'csv-parse/sync'
 import fs from 'node:fs/promises'
-export default async function getValidators() {
+
+export default async function getValidators(): Promise<string[]> {
   const validatorFile = await fs.readFile(
     'src/helpers/all-historical-celo-validator-addresses.csv'
   )

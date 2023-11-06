@@ -16,6 +16,7 @@ This repo contains 3 snapshots as per the eligibility criteria provided in [#289
 - Sum up actual LockedCelo balances at all 12 snapshots
 - Calculate the average LockedCelo over all 12 snapshots
 - Filter out addresses with less than 10 in average LockedCelo
+- Filter out validator addresses because their allocation will be calculated separately
 
 ## 2. cStables Volume
 
@@ -32,6 +33,7 @@ Volume is defined as all cStable transfers **from** an address + all cStable tra
 - Sum up volume across all cStables: `cUSD volume + cEUR volume + cREAL volume`
 - Denominate volume in USD using the average exchange rate over 365 days between 15.11.2022 and 15.10.2023
 - Filter out addresses with less than $10 of total volume
+- Filter out validator addresses because their allocation will be calculated separately
 
 ### Example
 
