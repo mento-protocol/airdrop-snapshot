@@ -1,12 +1,9 @@
-import env from 'env-var'
 import ora from 'ora'
-import getClient from './getClient.js'
+import getClient from './get-client.js'
 import bold from '../../helpers/bold.js'
 
-const RPC_URL = env.get('RPC_URL').required().asUrlString()
-
 /**
- * Helper function to get the block number for a specific date
+ * Get the block number for a specific date
  */
 export default async function getBlockNumberForDate(
   targetDate: Date
@@ -16,7 +13,7 @@ export default async function getBlockNumberForDate(
   ).start()
 
   try {
-    const client = getClient(RPC_URL)
+    const client = getClient()
     let lowerBound = BigInt(0)
     let upperBound = await client.getBlockNumber()
     let currentDate: Date

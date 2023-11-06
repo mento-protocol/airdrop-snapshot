@@ -1,13 +1,16 @@
 import path from 'node:path'
-import type { InputCsv } from './index.js'
+import type { DuneCsv } from './load-dune-snapshot-file.js'
 
+/**
+ * Sanity check to guard against accidental typos when exporting a Dune snapshot to CSV and manually naming the file
+ */
 export default function checkIfFileNameAndSnapshotTimeColumnMatch(
-  fileName: string,
-  csv: InputCsv
+  filePath: string,
+  csv: DuneCsv
 ) {
-  // First Row is the Header Row, hence we need to get the second row for the first timestamp value
+  // First Row is the Header Row, hence we need to get the second row at index 1 for the first timestamp value
   const timestampColumnOfSecondRow = csv.map((row) => row[4])[1]
-  const fileNameNormalized = path.basename(fileName).slice(0, 13)
+  const fileNameNormalized = path.basename(filePath).slice(0, 13)
   const timestampNormalized = timestampColumnOfSecondRow.slice(0, 13)
 
   if (fileNameNormalized !== timestampNormalized) {

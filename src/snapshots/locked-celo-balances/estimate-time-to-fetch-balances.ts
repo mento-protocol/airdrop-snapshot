@@ -1,7 +1,12 @@
 import ora from 'ora'
 import bold from '../../helpers/bold.js'
 
-export default function estimateCheckTime(addresses: Array<`0x${string}`>) {
+/**
+ * Little helper to gauge how long it'll take to fetch balances for an array of addresses from an archive node
+ */
+export default function estimateTimeToFetchAllBalancesFromNode(
+  addresses: Array<`0x${string}`>
+) {
   // NOTE: Empirical value of 400 fetches per second on a 50MBit/s connection using a standard Infura node
   const addressesPerMinute = 400
   const timeEstimationInMins = Math.ceil(addresses.length / addressesPerMinute)

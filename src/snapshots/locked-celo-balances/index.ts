@@ -1,22 +1,9 @@
-import getBlockNumberForDate from './getBlockNumberForDate.js'
-import getAddressesFromCsv from './getAddressesFromCsv.js'
-import getBalancesAtBlockNumber from './getBalancesAtBlockNumber.js'
-import writeBalancesToCsv from './writeBalancesToCsv.js'
-import sortBalances from './sortBalances.js'
-import transformDateToFilename from '../../helpers/transformDateToFilename.js'
-import checkIfFileNameAndSnapshotTimeColumnMatch from './checkIfFileNameAndSnapshotTimeColumnMatch.js'
-import loadCsv from './loadCsv.js'
-import checkIfOutputFileExists from './checkIfOutputFileExists.js'
-import estimateCheckTime from './estimateCheckTime.js'
+import fetchOnChainBalancesFor from './fetch-on-chain-balances.js'
+import calculateAverageBalancesFor from './calculate-average-balances-for.js'
 
-export type InputCsv = [
-  `0x${string}`,
-  `<a href=${string}`,
-  string,
-  'Contract' | '',
-  string
-]
+export type LockedCeloBalances = { [address: string]: number }
 
+// 1. Define snapshot dates
 const snapshotDates = [
   new Date('2022-11-15 12:00 UTC'),
   new Date('2022-12-15 12:00 UTC'),
@@ -32,28 +19,8 @@ const snapshotDates = [
   new Date('2023-10-15 12:00 UTC'),
 ]
 
-for (const date of snapshotDates) {
-  // cli output formatting
-  console.log('')
-  const snapshotFileName = transformDateToFilename(date)
-  const inputFileName = `dune-snapshots/${snapshotFileName}.in.csv`
-  const outputFileName = `contract-snapshots/${snapshotFileName}.out.csv`
+// 2. Iterate over all Dune snapshot files to extract addresses, then fetch real balances from archive node for each snapshot
+await fetchOnChainBalancesFor(snapshotDates)
 
-  // Fetching thousands of balances is expensive, exit early if we already have the data locally
-  if (await checkIfOutputFileExists(outputFileName)) {
-    continue
-  }
-
-  const inputCsv = await loadCsv(inputFileName)
-
-  // Sanity check against human error during manual export from Dune into CSV
-  checkIfFileNameAndSnapshotTimeColumnMatch(inputFileName, inputCsv)
-
-  const addresses = getAddressesFromCsv(inputCsv)
-  estimateCheckTime(addresses)
-
-  const blockNumber = await getBlockNumberForDate(date)
-  const balances = await getBalancesAtBlockNumber(addresses, blockNumber)
-  const sortedBalances = sortBalances(balances)
-  await writeBalancesToCsv(sortedBalances, outputFileName)
-}
+// 3. Calculate average balances across all snapshots
+await calculateAverageBalancesFor(snapshotDates)

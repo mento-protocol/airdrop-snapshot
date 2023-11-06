@@ -1,21 +1,19 @@
-import env from 'env-var'
 import ora from 'ora'
 import { formatEther, getContract } from 'viem'
-import LockedCeloAbi from './LockedCeloAbi.js'
-import getClient from './getClient.js'
+import LockedCeloAbi from './locked-celo-abi.js'
+import getClient from './get-client.js'
 import bold from '../../helpers/bold.js'
+import type { LockedCeloBalances } from './index.js'
 
-const RPC_URL = env.get('RPC_URL').required().asUrlString()
 const LOCKED_CELO_PROXY = '0x6cc083aed9e3ebe302a6336dbc7c921c9f03349e'
 
-export type Balances = {
-  [address: string]: bigint
-}
-
+/**
+ * Fetches LockedCelo balances at a past block from an archive node
+ */
 export default async function getBalancesAtBlockNumber(
   addresses: Array<`0x${string}`>,
   blockNumber: bigint
-): Promise<Balances> {
+): Promise<LockedCeloBalances> {
   const spinner = ora(
     `Fetching locked Celo balance for ${bold(
       String(addresses.length)
@@ -23,7 +21,7 @@ export default async function getBalancesAtBlockNumber(
   ).start()
 
   // Our main object we want to populate with LockedCelo balances on a given snapshot date
-  const balances: Balances = {}
+  const balances: LockedCeloBalances = {}
 
   try {
     for (let i = 0; i < addresses.length; i++) {
@@ -32,7 +30,7 @@ export default async function getBalancesAtBlockNumber(
 
       const address = addresses[i]
       const balance = await getLockedCeloBalanceForBlock(address, blockNumber)
-      balances[address] = balance
+      balances[address] = Number(balance)
       if (process.env.DEBUG) {
         console.log(
           Number(formatEther(balance)).toLocaleString('en-us', {
@@ -66,7 +64,7 @@ async function getLockedCeloBalanceForBlock(
   const LockedCelo = getContract({
     address: LOCKED_CELO_PROXY,
     abi: LockedCeloAbi,
-    publicClient: getClient(RPC_URL),
+    publicClient: getClient(),
   })
 
   const rawBalance = await LockedCelo.read.getAccountTotalLockedGold(
