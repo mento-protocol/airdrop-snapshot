@@ -1,11 +1,15 @@
 import fs from 'node:fs/promises'
-import path from 'node:path'
-import type { CStableBalances } from './index.js'
+import type { CStableBalances } from './types.js'
+import ora from 'ora'
 
+/**
+ * Generates final output CSV combining all snapshots into average balances sorted from highest to lowest
+ */
 export default async function generateOutputCsv(
   balances: CStableBalances,
   outputPath: string
 ) {
+  const spinner = ora(`Writing total average balances to ${outputPath}`).start()
   try {
     let csvData =
       'Address,Average Total cStables in USD,Average cUSD in USD,Average cEUR in USD,Average cREAL in USD,Average cUSD Balance,Average cEUR Balance,Average cREAL Balance\n'
@@ -20,10 +24,9 @@ export default async function generateOutputCsv(
       .join('\n')
 
     await fs.writeFile(outputPath, csvData)
-    console.log(
-      `🏁 Generated CSV file: ${path.relative(process.cwd(), outputPath)}`
-    )
+
+    spinner.succeed()
   } catch (error) {
-    console.error('Error compiling output CSV:', error)
+    spinner.fail()
   }
 }

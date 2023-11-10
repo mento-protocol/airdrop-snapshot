@@ -2,9 +2,11 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 
 /**
- * Load Dune snapshot files
+ * Load individual monthly snapshot files
  */
-export default async function getSnapshotFiles(snapshotFolder: string) {
+export default async function getIndividualSnapshotFiles(
+  snapshotFolder: string
+) {
   try {
     const snapshotFiles = (await fs.readdir(path.resolve(snapshotFolder)))
       .filter((file) => path.extname(file).toLowerCase() === '.csv')

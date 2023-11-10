@@ -1,5 +1,4 @@
 import fs from 'node:fs/promises'
-import path from 'node:path'
 import ora from 'ora'
 import type { LockedCeloBalances } from './index.js'
 
@@ -19,19 +18,10 @@ export default async function generateOutputCsv(
       .join('\n')
 
     await fs.writeFile(outputPath, csvData)
-    spinner.succeed(
-      `Wrote total average balances to ${path.relative(
-        process.cwd(),
-        outputPath
-      )}`
-    )
+
+    spinner.succeed()
   } catch (error) {
-    spinner.fail(
-      `Failed to write total average balances to ${path.relative(
-        process.cwd(),
-        outputPath
-      )}`
-    )
+    spinner.fail()
     throw error
   }
 }

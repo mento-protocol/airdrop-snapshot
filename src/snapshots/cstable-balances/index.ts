@@ -2,31 +2,19 @@ import bold from '../../helpers/bold.js'
 import calculateAverageBalances from './calculate-average-balances.js'
 import filterOutSmallBalances from './filter-out-small-balances.js'
 import filterOutValidators from '../../helpers/filter-out-validators.js'
-import generateOutputCsv from './generate-csv-output-file.js'
+import generateOutputCsv from './generate-output-csv.js'
 import getValidators from '../../helpers/get-validators.js'
-import loadDuneSnapshotFiles from './load-dune-snapshot-files.js'
-import processSnapshotCsv from './process-snapshot-csv.js'
+import loadDuneSnapshotFiles from './get-individual-snapshot-files.js'
+import sumUpBalancesFromSnapshots from './sum-up-balances-from-snapshot-csv.js'
 import sortBalancesByTotal from './sort-balances-by-total.js'
-
-// Our main object we'll use to sum up balances for each address across all snapshots
-export type CStableBalances = {
-  [address: string]: {
-    total: number
-    cUSDinUSD: number
-    cEURinUSD: number
-    cREALinUSD: number
-    cUSD: number
-    cEUR: number
-    cREAL: number
-  }
-}
+import type { CStableBalances } from './types.js'
 
 // Process all individual snapshot files and populate balances object with aggregate total balances across all snapshots
 const totalBalances: CStableBalances = {}
 for (const file of await loadDuneSnapshotFiles(
   'src/snapshots/cstable-balances/individual-monthly-snapshots'
 )) {
-  await processSnapshotCsv(file, totalBalances)
+  await sumUpBalancesFromSnapshots(file, totalBalances)
 }
 
 console.log('') // output formatting

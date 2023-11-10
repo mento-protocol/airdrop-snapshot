@@ -1,7 +1,7 @@
 import ora from 'ora'
 import { formatEther, getContract } from 'viem'
 import LockedCeloAbi from './locked-celo-abi.js'
-import getClient from './get-client.js'
+import getClient from '../../helpers/get-blockchain-client.js'
 import bold from '../../helpers/bold.js'
 import type { LockedCeloBalances } from './index.js'
 

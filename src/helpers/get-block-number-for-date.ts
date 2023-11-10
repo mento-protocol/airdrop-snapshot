@@ -1,6 +1,6 @@
 import ora from 'ora'
-import getClient from './get-client.js'
-import bold from '../../helpers/bold.js'
+import getClient from './get-blockchain-client.js'
+import bold from './bold.js'
 
 /**
  * Get the block number for a specific date
@@ -9,7 +9,7 @@ export default async function getBlockNumberForDate(
   targetDate: Date
 ): Promise<bigint> {
   const spinner = ora(
-    `Fetching block number for ${bold(targetDate.toUTCString())}...`
+    `Fetching block number for ${targetDate.toUTCString()}:`
   ).start()
 
   try {
@@ -32,24 +32,18 @@ export default async function getBlockNumberForDate(
       } else if (currentDate > targetDate) {
         upperBound = middleBlockNumber - BigInt(1)
       } else {
-        spinner.succeed(
-          `Fetched block number ${bold(lowerBound.toString())} for ${bold(
-            targetDate.toUTCString()
-          )}`
-        )
+        spinner.suffixText = bold(lowerBound.toString())
+        spinner.succeed()
         return middleBlockNumber
       }
     }
 
-    spinner.succeed(
-      `Fetched block number for ${targetDate.toUTCString()}: ${bold(
-        lowerBound.toString()
-      )}`
-    )
+    spinner.suffixText = bold(lowerBound.toString())
+    spinner.succeed()
 
     return lowerBound
   } catch (error) {
-    spinner.fail(`Couldn't fetch block number for ${targetDate.toUTCString()}`)
+    spinner.fail()
     throw error
   }
 }

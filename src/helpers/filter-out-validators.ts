@@ -1,4 +1,4 @@
-import type { CStableBalances } from '../snapshots/cstable-balances/index.js'
+import type { CStableBalances } from '../snapshots/cstable-balances/types.js'
 import type { LockedCeloBalances } from '../snapshots/locked-celo-balances/index.js'
 
 /**
