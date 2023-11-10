@@ -53,9 +53,7 @@ WITH
         FROM
             mento_celo.StableToken_evt_Transfer
         WHERE
-            -- Filter out 0 address
-            to != 0x0000000000000000000000000000000000000000
-            AND evt_block_time >= TIMESTAMP '{{from}}'
+            evt_block_time >= TIMESTAMP '{{from}}'
             AND evt_block_time <= TIMESTAMP '{{to}}'
         GROUP BY
             to
@@ -76,9 +74,9 @@ WITH
     -- Calculate total cUSD volume: `inflow + outflow = volume`
     cUSD_volume as (
         SELECT
-            inflow.address AS address,
-            (inflow.total + outflow.total) / 1e18 AS volume,
-            ((inflow.total + outflow.total) / 1e18) * (
+            address,
+            SUM(total) / 1e18 AS volume,
+            (SUM(total) / 1e18) * (
                 SELECT
                     average_price
                 FROM
@@ -87,10 +85,22 @@ WITH
                     symbol = 'cUSD'
             ) AS volume_in_usd
         FROM
-            cUSD_inflow AS inflow
-            LEFT OUTER JOIN cUSD_outflow AS outflow ON inflow.address = outflow.address
-        WHERE
-            (inflow.total + outflow.total) / 1e18 >= CAST(10 as double)
+            -- Can't use JOIN because there can be addresses that had ONLY outflows and won't appear on the inflow table (because inflows via block rewards don't emit `Transfer` events)
+            (
+                SELECT
+                    address,
+                    total
+                FROM
+                    cUSD_inflow
+                UNION ALL
+                SELECT
+                    address,
+                    total
+                FROM
+                    cUSD_outflow
+            )
+        GROUP BY
+            address
     ),
     --
     --
@@ -104,9 +114,7 @@ WITH
         FROM
             mento_celo.StableTokenEUR_evt_Transfer
         WHERE
-            -- Filter out 0 address
-            to != 0x0000000000000000000000000000000000000000
-            AND evt_block_time >= TIMESTAMP '{{from}}'
+            evt_block_time >= TIMESTAMP '{{from}}'
             AND evt_block_time <= TIMESTAMP '{{to}}'
         GROUP BY
             to
@@ -127,9 +135,9 @@ WITH
     -- Calculate total cEUR volume: `inflow + outflow = volume`
     cEUR_volume as (
         SELECT
-            inflow.address AS address,
-            (inflow.total + outflow.total) / 1e18 AS volume,
-            ((inflow.total + outflow.total) / 1e18) * (
+            address,
+            SUM(total) / 1e18 AS volume,
+            (SUM(total) / 1e18) * (
                 SELECT
                     average_price
                 FROM
@@ -138,10 +146,22 @@ WITH
                     symbol = 'cEUR'
             ) AS volume_in_usd
         FROM
-            cEUR_inflow AS inflow
-            LEFT OUTER JOIN cEUR_outflow AS outflow ON inflow.address = outflow.address
-        WHERE
-            (inflow.total + outflow.total) / 1e18 >= CAST(10 as double)
+            -- Can't use JOIN because there can be addresses that had ONLY outflows and won't appear on the inflow table (because inflows via block rewards don't emit `Transfer` events)
+            (
+                SELECT
+                    address,
+                    total
+                FROM
+                    cEUR_inflow
+                UNION ALL
+                SELECT
+                    address,
+                    total
+                FROM
+                    cEUR_outflow
+            )
+        GROUP BY
+            address
     ),
     --
     --
@@ -155,9 +175,7 @@ WITH
         FROM
             mento_celo.StableTokenBRL_evt_Transfer
         WHERE
-            -- Filter out 0 address
-            to != 0x0000000000000000000000000000000000000000
-            AND evt_block_time >= TIMESTAMP '{{from}}'
+            evt_block_time >= TIMESTAMP '{{from}}'
             AND evt_block_time <= TIMESTAMP '{{to}}'
         GROUP BY
             to
@@ -178,9 +196,9 @@ WITH
     -- Calculate total cREAL volume: `inflow + outflow = volume`
     cREAL_volume as (
         SELECT
-            inflow.address AS address,
-            (inflow.total + outflow.total) / 1e18 AS volume,
-            ((inflow.total + outflow.total) / 1e18) * (
+            address,
+            SUM(total) / 1e18 AS volume,
+            (SUM(total) / 1e18) * (
                 SELECT
                     average_price
                 FROM
@@ -189,11 +207,24 @@ WITH
                     symbol = 'BRL'
             ) AS volume_in_usd
         FROM
-            cREAL_inflow AS inflow
-            LEFT OUTER JOIN cREAL_outflow AS outflow ON inflow.address = outflow.address
-        WHERE
-            (inflow.total + outflow.total) / 1e18 >= CAST(10 as double)
+            -- Can't use JOIN because there can be addresses that had ONLY outflows and won't appear on the inflow table (because inflows via block rewards don't emit `Transfer` events)
+            (
+                SELECT
+                    address,
+                    total
+                FROM
+                    cREAL_inflow
+                UNION ALL
+                SELECT
+                    address,
+                    total
+                FROM
+                    cREAL_outflow
+            )
+        GROUP BY
+            address
     )
+    --
     --
     --
     -- Combine total volumes into final output table
@@ -239,7 +270,8 @@ FROM
     LEFT JOIN safe_celo.safes "gnosis_safe" ON gnosis_safe.address = COALESCE(cUSD.address, cEUR.address, cREAL.address)
 WHERE
     -- min. $10 USD total volume to qualify
-    COALESCE(cUSD.volume_in_usd, 0) + COALESCE(cEUR.volume_in_usd, 0) + COALESCE(cREAL.volume_in_usd, 0) > 10
+    COALESCE(cUSD.volume_in_usd, 0) + COALESCE(cEUR.volume_in_usd, 0) + COALESCE(cREAL.volume_in_usd, 0) >= 100
+    AND COALESCE(cUSD.address, cEUR.address, cREAL.address) != 0x0000000000000000000000000000000000000000
     --
     -- This group-by clause is necessary because 1 address can possibly have multiple contract names on
     -- the celo.contracts table which would lead to multiple rows for the same address potentially leading
