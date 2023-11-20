@@ -6,6 +6,7 @@ import getValidators from '../../helpers/get-validators.js'
 import sortByTotal from '../cstable-balances/sort-by-total.js'
 import generateOutputCsv from './generate-output-csv.js'
 import findDuplicateKeys from '../../helpers/find-duplicate-keys.js'
+import fileExists from '../../helpers/file-exists.js'
 
 export type CStableVolume = {
   [address: string | `0x${string}`]: {
@@ -30,33 +31,36 @@ const validators = await getValidators('validators')
 const validatorGroups = await getValidators('validator-groups')
 const validatorsAndGroups = validators.concat(validatorGroups)
 
+const snapshotPath = path.resolve(
+  'src/snapshots/cstable-volume/cstable-volume-dune-export.csv'
+)
+if (!(await fileExists(snapshotPath))) {
+  throw new Error(`Snapshot file not found: ${snapshotPath}`)
+}
+
 // 2. Create CSV parser for dune volume snapshot
-const parser = fs
-  .createReadStream(
-    path.resolve('src/snapshots/cstable-volume/cstable-volume-dune-export.csv')
-  )
-  .pipe(
-    parse({
-      columns: true,
-      cast: (value, context) => {
-        if (context.header) {
+const parser = fs.createReadStream(snapshotPath).pipe(
+  parse({
+    columns: true,
+    cast: (value, context) => {
+      if (context.header) {
+        return value
+      }
+
+      switch (context.column) {
+        case 'Address':
+        case 'Contract':
           return value
-        }
 
-        switch (context.column) {
-          case 'Address':
-          case 'Contract':
-            return value
+        case 'Snapshot Date':
+          return new Date(value.replace('12-00', '12:00 UTC'))
 
-          case 'Snapshot Date':
-            return new Date(value.replace('12-00', '12:00 UTC'))
-
-          default:
-            return Number(value)
-        }
-      },
-    })
-  )
+        default:
+          return Number(value)
+      }
+    },
+  })
+)
 
 // 3. Load dune volume snapshot csv into memory and double validator's cUSD volume
 parser.on('readable', function () {

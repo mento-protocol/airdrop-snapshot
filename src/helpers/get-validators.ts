@@ -1,10 +1,18 @@
 import { parse } from 'csv-parse/sync'
 import fs from 'node:fs/promises'
+import fileExists from './file-exists.js'
+import path from 'node:path'
 
 export default async function getValidators(
-  type = 'validators'
+  type: 'validators' | 'validator-groups' = 'validators'
 ): Promise<Array<`0x${string}`>> {
-  const validatorFile = await fs.readFile(`src/snapshots/celo-${type}.csv`)
+  const filePath = path.resolve(
+    `src/snapshots/validators-and-groups/celo-${type}.csv`
+  )
+  if (!(await fileExists(filePath))) {
+    throw new Error(`Validator file not found: ${filePath}`)
+  }
+  const validatorFile = await fs.readFile(filePath)
   return (
     parse(validatorFile)
       .map((addressWrappedInArray: string[]) => addressWrappedInArray[0])
