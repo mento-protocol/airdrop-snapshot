@@ -1,9 +1,9 @@
 import ora from 'ora'
 import bold from '../../../helpers/bold.js'
-import type { Snapshot } from './types.js'
 import getAddressBalance from './get-address-balance.js'
 import getBlockNumberForDate from '../../../helpers/get-block-number-for-date.js'
 import type { CStableBalances } from '../types.js'
+import type { Snapshot } from '../../snapshots.js'
 
 export default async function getAllBalancesFor(
   addresses: Array<`0x${string}`>,

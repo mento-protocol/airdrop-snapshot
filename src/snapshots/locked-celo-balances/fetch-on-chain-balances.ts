@@ -9,7 +9,8 @@ import getBlockNumberForDate from '../../helpers/get-block-number-for-date.js'
 import loadDuneSnapshotFile from './load-dune-snapshot-file.js'
 import writeOnChainBalancesToCsv from './write-on-chain-balances-to-csv.js'
 import bold from '../../helpers/bold.js'
-import sortBalancesByTotal from './sort-balances-by-total.js'
+import sortByTotal from '../../helpers/sort-by-total.js'
+import type { LockedCeloBalances } from './index.js'
 
 /**
  * For every snapshot date:
@@ -53,6 +54,7 @@ export default async function processDuneSnapshots(snapshotDates: Date[]) {
     const balances = await getBalancesAtBlockNumber(addresses, blockNumber)
     const sortedBalances = sortBalancesByTotal(balances)
     await writeOnChainBalancesToCsv(sortedBalances, outputFile)
+    const sortedBalances = sortByTotal(balances) as LockedCeloBalances
   }
 
   console.log('') // cli output formatting

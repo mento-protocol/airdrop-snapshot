@@ -3,7 +3,7 @@ import filterOutValidators from '../../helpers/filter-out-validators.js'
 import generateOutputCsv from './generate-output-csv.js'
 import getValidators from '../../helpers/get-validators.js'
 import processOnChainCsv from './process-on-chain-csv.js'
-import sortBalancesByTotal from './sort-balances-by-total.js'
+import sortBalancesByTotal from '../../helpers/sort-by-total.js'
 import transformDateToFilename from '../../helpers/transform-date-to-filename.js'
 import type { LockedCeloBalances } from './index.js'
 
