@@ -1,8 +1,8 @@
-import type { CStableVolume } from '../cstable-volume/index.js'
-import type { CStableBalances } from './types.js'
+import type { CStableVolume } from '../snapshots/cstable-volume/index.js'
+import type { CStableBalances } from '../snapshots/cstable-balances/types.js'
 
 /**
- * Sort balances by total highest to lowest
+ * Sort entries by total highest to lowest
  */
 export default function sortByTotal(
   balances: CStableBalances | CStableVolume

@@ -7,16 +7,16 @@ This repo contains 3 snapshots as per the eligibility criteria provided in [#289
 - **[Final Snapshot - Locked CELO](./final-snapshots/locked-celo-balances.csv)**
 - [Dune Query that was used to export 12 snapshot CSVs](https://dune.com/queries/3164542/5281325)
 
-### Calculation Method
+### Calculation Method Explanation
 
-- Export 12 snapshot CSVs using the above Dune query to generate a list of addresses that had locked Celo until the snapshot time
-  - **❗ Note that the Dune query results on their own are incorrect as they do not factor in accrued yield from locking over time ❗**
-  - Dune can only index emitted `GoldLocked` and `GoldUnlocked` events, so Dune balances should always be lower than the actual on-chain balance was
-- Given the list of Dune-generated addresses, fetch the actual LockedCelo balance at the snapshot time from a Celo archive node
-- Sum up actual LockedCelo balances at all 12 snapshots
-- Calculate the average LockedCelo over all 12 snapshots
-- Filter out addresses with less than 10 in average LockedCelo
-- Filter out validator addresses because their allocation will be calculated separately
+1. Export 12 snapshot CSVs using the above Dune query to generate a list of addresses that had locked Celo until the snapshot time
+   - **❗ Note that the Dune query results on their own are incorrect as they do not factor in accrued yield from locking over time ❗**
+   - Dune can only index emitted `GoldLocked` and `GoldUnlocked` events, so Dune balances should always be lower than the actual on-chain balance was
+1. Given the list of Dune-generated addresses, fetch the actual LockedCelo balance at the snapshot time from a Celo archive node
+1. Sum up actual LockedCelo balances at all 12 snapshots
+1. Calculate the average LockedCelo over all 12 snapshots
+1. Filter out addresses with less than 10 in average LockedCelo
+1. Filter out validator addresses because their allocation will be calculated separately
 
 ## 2. cStables Volume
 
@@ -33,17 +33,6 @@ Volume is defined as all cStable transfers **from** an address + all cStable tra
 - [Validator Group Addresses Snapshot](./src/snapshots/validators-and-groups/celo-validator-groups.csv)
 - Validator Group Addresses were fetched from [explorer.celo.org](https://explorer.celo.org/mainnet/graphiql) via this query: `{celoValidatorGroups{address}}`
 
-### Calculation Method
-
-- Take 1 snapshot of the total cStables volume per address over a 1-year timeframe from 15.10.2022 12:00 pm UTC to 15.10.2023 12:00 pm UTC
-- Sum up volume across all cStables: `cUSD volume + cEUR volume + cREAL volume`
-- Denominate volume in USD using the average exchange rate over 365 days between 15.11.2022 and 15.10.2023
-- Sort by total volume in USD
-- Filter out addresses with less than $100 of total volume
-- Filter out validator and validator group addresses and double their cUSD volume
-  - **Key Assumption: Validator addresses and validator group addresses barely received cUSD from outside sources but only from epoch rewards**
-  - Epoch rewards paid out in cUSD to validator and validator groups aren't captured by Dune, so as a rough heuristic, we're assuming that all cUSD outflows must have had original inflows via epoch rewards. Therefore multiplying cUSD outflows by 2 should give a good approximation of their real volume, albeit not perfect.
-
 ### Example
 
 - Bob sent 100 cUSD on day 1 of the snapshot period
@@ -52,21 +41,23 @@ Volume is defined as all cStable transfers **from** an address + all cStable tra
 - The average cEUR/USD exchange rate over the 365 days snapshot period was 1.05
 - Bob has a total volume of 100 cUSD (spent) + 50 cUSD (received) + (100 cEUR * 1.05 exchange rate = 105 cUSD) = **$255 total volume**
 
+### Calculation Method Explanation
+
+1. Take 1 snapshot of the total cStables volume per address over a 1-year timeframe from 15.10.2022 12:00 pm UTC to 15.10.2023 12:00 pm UTC
+1. Sum up volume across all cStables: `cUSD volume + cEUR volume + cREAL volume`
+1. Denominate volume in USD using the average exchange rate over 365 days between 15.11.2022 and 15.10.2023
+1. Sort by total volume in USD
+1. Filter out addresses with less than $100 of total volume
+1. Filter out validator and validator group addresses and double their cUSD volume
+   - **Key Assumption: Validator addresses and validator group addresses barely received cUSD from outside sources but only from epoch rewards**
+   - Epoch rewards paid out in cUSD to validator and validator groups aren't captured by Dune, so as a rough heuristic, we're assuming that all cUSD outflows must have had original inflows via epoch rewards. Therefore multiplying cUSD outflows by 2 should give a good approximation of their real volume, albeit not perfect.
+
 ## 3. cStables Balances
 
 The average cStable balance (cUSD/cEUR/cREAL) denominated in USD across a 1-year timeframe.
 
 - [Final Snapshot - cStable Balances](./final-snhapshots/cstable-balances.csv)
 - [Dune Query that was used to export 12 snapshot CSVs at different dates](https://dune.com/queries/3144937/5269961)
-
-### Calculation Method
-
-- Take 12 monthly snapshots, 1 per month from November 15, 2022, to October 15, 2023, of addresses that held any cStables on the date of the snapshot
-- Minimum cUSD OR cEUR OR cREAL balance must have been > 10 to be included in the monthly snapshots
-- Converted the cStables balances into USD using the exchange rate at the time of the respective monthly snapshot
-- Calculated the average cStable balance in USD over all 12 monthly snapshots
-- Filtered out addresses with less than $10 in average cStable balances across all snapshots
-- Filtered out validator addresses (because, for technical reasons, their cUSD balances can't be correctly calculated by indexers. Concretely, the block rewards paid in cUSD to validators do not emit `Transfer` events that indexers pick up)
 
 ### Example
 
@@ -78,3 +69,32 @@ The average cStable balance (cUSD/cEUR/cREAL) denominated in USD across a 1-year
 - Her total average cStable balance across all 12 snapshots would be
   - ($50 (cUSD balance) + $106 (cEUR balance)) / 12 snapshots = **$13 average combined cStable balance**
   - Alice would be eligible for the airgrab because she has more than $10 in average cStable value across all snapshots
+
+### Calculation Method Explanation
+
+1. Take 12 monthly snapshots, 1 per month from November 15, 2022, to October 15, 2023, of addresses that held any cStables on the date of the snapshot
+1. Filter out addresses with less than 10 cUSD or cEUR or cREAL at the time of snapshot
+1. Convert the cStables balances into USD using the exchange rate at the time of the respective monthly snapshot
+1. Calculate the average cStable balance in USD over all 12 monthly snapshots
+1. Filter out addresses with less than $10 USD in average cStable balances across all snapshots
+1. Filter out validator and validator group addresses because their cUSD balances can't be correctly calculated by indexers.
+   - The epoch rewards paid in cUSD to validators do not emit `Transfer` events that indexers pick up. Therefor, we must calculate them manually.
+1. Fetch actual cStable balances for all validator and validator group addresses via `balanceOf(address, blockNumber)` from an archive node for each monthly snapshot
+1. Integrate average validator and validator group balances into final snapshot
+
+### How To Recalculate Yourself
+
+1. Copy the `.env.example` file into `.env` and add a valid Infura API key
+1. Delete all snapshot CSV files from: (don't worry, they're under version control)
+   1. `./src/snapshots/cstable-balances/individual-monthly-snapshots`
+   1. `./src/snapshots/cstable-balances/validator-balances/monthly-snapshots-validators`
+   1. `./src/snapshots/cstable-balances/validator-balances/monthly-snapshots-validator-groups`
+1. Export 12 CSVs via this [Dune Query](https://dune.com/queries/3144937/5269961), one for every snapshot date
+   - First snapshot: 15.11.2022 12:00 pm UTC
+   - Last snapshot: 15.10.2023 12:00 pm UTC
+1. Name the CSVs according to schema `2022-11-15 12pm.csv` and place them into the `./src/snapshots/cstable-balances/individual-monthly-snapshots` folder
+1. Run `npm run generate:cstableBalances` which should create or update `./src/snapshots/cstable-balances/total-average-across-all-snapshots-excluding-validators.csv`
+1. Run `npm run generate:cstableBalancesForValidators` which should fetch validator balances from an archive node and create 12 snapshot CSVs in `./src/snapshots/cstable-balances/validator/balances/monthly-snapshots-validators/`
+1. Run `npm run generate:cstableBalancesForValidatorGroups` which should fetch validator group balances from an archive node and create 12 snapshot CSVs in `./src/snapshots/cstable-balances/validator/balances/monthly-snapshots-validator-groups/`
+1. Run `npm run generate:cstableBalances:merge` which should merge the results of the prior 3 commands into `./final-snapshots/cstable-balances.csv`
+1. Check the git diffs to see you get the same results

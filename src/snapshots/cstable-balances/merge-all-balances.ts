@@ -2,30 +2,39 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { finished } from 'node:stream/promises'
 import { Parser, parse } from 'csv-parse'
-import type { CStableBalances } from '../snapshots/cstable-balances/types.js'
-import sortBalancesByTotal from '../snapshots/cstable-balances/sort-balances-by-total.js'
-import generateOutputCsv from '../snapshots/cstable-balances/generate-output-csv.js'
+import type { CStableBalances } from './types.js'
+import sortByTotal from '../../helpers/sort-by-total.js'
+import generateOutputCsv from './generate-output-csv.js'
 
 const mergedBalances: CStableBalances = {}
 
-export default async function mergeCsvs(
-  originalContentFilePath: string = path.resolve(
+async function mergeAllBalances() {
+  const finalOutputSnapshotFile: string = path.resolve(
     'final-snapshots/cstable-balances.csv'
-  ),
-  newContentFilePath: string = path.resolve(
-    'src/snapshots/cstable-balances-for-validators/cstable-balances-for-validator-groups.csv'
   )
-) {
-  const parserOriginalFile = getParser(originalContentFilePath)
-  parseFile(parserOriginalFile)
-  await finished(parserOriginalFile)
+  const originalBalancesSnapshot: string = path.resolve(
+    'src/snapshots/cstable-balances/total-average-across-all-snapshots-excluding-validators.csv'
+  )
+  const validatorBalancesSnapshot: string = path.resolve(
+    'src/snapshots/cstable-balances/validator-balances/cstable-balances-for-validators.csv'
+  )
+  const validatorGroupBalancesSnapshot: string = path.resolve(
+    'src/snapshots/cstable-balances/validator-balances/cstable-balances-for-validator-groups.csv'
+  )
+  const parserOriginalSnapshot = getParser(originalBalancesSnapshot)
+  parseFile(parserOriginalSnapshot)
+  await finished(parserOriginalSnapshot)
 
-  const parserNewContent = getParser(newContentFilePath)
-  parseFile(parserNewContent)
-  await finished(parserNewContent)
+  const parserValidatorSnapshot = getParser(validatorBalancesSnapshot)
+  parseFile(parserValidatorSnapshot)
+  await finished(parserValidatorSnapshot)
 
-  const sortedMergedBalances = sortBalancesByTotal(mergedBalances)
-  generateOutputCsv(sortedMergedBalances, originalContentFilePath)
+  const parserValidatorGroupSnapshot = getParser(validatorGroupBalancesSnapshot)
+  parseFile(parserValidatorGroupSnapshot)
+  await finished(parserValidatorGroupSnapshot)
+
+  const sortedMergedBalances = sortByTotal(mergedBalances) as CStableBalances
+  generateOutputCsv(sortedMergedBalances, finalOutputSnapshotFile)
 }
 
 function getParser(filePath: string) {
@@ -92,4 +101,4 @@ function parseFile(parser: Parser) {
   })
 }
 
-await mergeCsvs()
+await mergeAllBalances()

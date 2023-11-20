@@ -10,11 +10,11 @@
   },
   "scripts": {
     "generate:cstableBalances": "npx tsx src/snapshots/cstable-balances/index.ts",
-    "generate:cstableBalancesForValidators": "npx tsx src/snapshots/cstable-balances-for-validators/index.ts validators",
-    "generate:cstableBalancesForValidatorGroups": "npx tsx src/snapshots/cstable-balances-for-validators/index.ts validator-groups",
+    "generate:cstableBalancesForValidators": "npx tsx src/snapshots/cstable-balances/validator-balances/index.ts validators",
+    "generate:cstableBalancesForValidatorGroups": "npx tsx src/snapshots/cstable-balances/validator-balances/index.ts validator-groups",
+    "generate:cstableBalances:merge": "npx tsx src/snapshots/cstable-balances/merge-all-balances.ts",
     "generate:cstableVolume": "npx tsx src/snapshots/cstable-volume/index.ts",
     "generate:lockedCeloBalances": "npx tsx src/snapshots/locked-celo-balances/index.ts",
-    "start": "bun generate:cstableBalancesForValidatorGroups",
     "todo": "leasot '**/*.ts' '**/*.sql'  --ignore 'node_modules/**/*'"
   },
   "author": "",

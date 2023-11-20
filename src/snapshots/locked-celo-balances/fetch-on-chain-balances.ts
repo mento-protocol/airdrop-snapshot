@@ -1,7 +1,7 @@
 import ora from 'ora'
 import path from 'path'
 import checkIfFileNameAndSnapshotTimeColumnMatch from './check-if-filename-and-snapshot-time-column-match.js'
-import checkIfFileExists from '../../helpers/file-exists.js'
+import fileExists from '../../helpers/file-exists.js'
 import estimateTimeToFetchAllBalancesFromNode from './estimate-time-to-fetch-balances.js'
 import getBalancesAtBlockNumber from './get-balances-at-block-number.js'
 import transformDateToFilename from '../../helpers/transform-date-to-filename.js'
@@ -24,7 +24,7 @@ export default async function processDuneSnapshots(snapshotDates: Date[]) {
     const outputFile = `${process.cwd()}/src/snapshots/locked-celo-balances/on-chain-output-snapshots/${snapshotFileName}.out.csv`
 
     // Fetching thousands of balances is expensive, exit early if we already have the data locally
-    if (await checkIfFileExists(outputFile)) {
+    if (await fileExists(outputFile)) {
       ora(
         `Skipping ${bold(
           path.basename(inputFile)
