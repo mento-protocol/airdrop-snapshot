@@ -41,7 +41,8 @@ Volume is defined as all cStable transfers **from** an address + all cStable tra
 - Sort by total volume in USD
 - Filter out addresses with less than $100 of total volume
 - Filter out validator and validator group addresses and double their cUSD volume
-   - Epoch rewards paid out in cUSD to validator and validator groups aren't captured by Dune, so as a rough heuristic, we're assuming that all cUSD outflows must have had original inflows via epoch rewards
+  - **Key Assumption: Validator addresses and validator group addresses barely received cUSD from outside sources but only from epoch rewards**
+  - Epoch rewards paid out in cUSD to validator and validator groups aren't captured by Dune, so as a rough heuristic, we're assuming that all cUSD outflows must have had original inflows via epoch rewards. Therefore multiplying cUSD outflows by 2 should give a good approximation of their real volume, albeit not perfect.
 
 ### Example
 
