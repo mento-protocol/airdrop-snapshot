@@ -20,34 +20,42 @@ This repo contains 3 snapshots as per the eligibility criteria provided in [#289
 
 ## 2. cStables Volume
 
-The total cStable volume (cUSD + cEUR + cREAL) across a 1-year timeframe.
+The total cStable volume (cUSD + cEUR + cREAL) across a 1-year timeframe from 15.10.2022 until 15.10.2023.
 
 Volume is defined as all cStable transfers **from** an address + all cStable transfers **to** an address.
 
+### Results
+
 - **[Final Snapshot - cStable Volume](./final-snapshots/cstable-volume.csv)**
-- [Dune Query that was used to export final snapshot CSV](https://dune.com/queries/3163689/5279843)
+- [Dune Query used to export cStable Volumes](https://dune.com/queries/3163689/5279843)
+- [Validator Addresses Snapshot](./src/snapshots/validators-and-groups/celo-validators.csv)
+- [Validator Addresses Dune Query](https://dune.com/queries/3186301)
+- [Validator Group Addresses Snapshot](./src/snapshots/validators-and-groups/celo-validator-groups.csv)
+- Validator Group Addresses were fetched from [explorer.celo.org](https://explorer.celo.org/mainnet/graphiql) via this query: `{celoValidatorGroups{address}}`
 
 ### Calculation Method
 
-- Take 1 snapshot of the total cStables volume per address over a 1-year timeframe from 15.11.2022 12:00 pm UTC to 15.10.2023 12:00 pm UTC
+- Take 1 snapshot of the total cStables volume per address over a 1-year timeframe from 15.10.2022 12:00 pm UTC to 15.10.2023 12:00 pm UTC
 - Sum up volume across all cStables: `cUSD volume + cEUR volume + cREAL volume`
 - Denominate volume in USD using the average exchange rate over 365 days between 15.11.2022 and 15.10.2023
-- Filter out addresses with less than $10 of total volume
-- Filter out validator addresses because their allocation will be calculated separately
+- Sort by total volume in USD
+- Filter out addresses with less than $100 of total volume
+- Filter out validator and validator group addresses and double their cUSD volume
+   - Epoch rewards paid out in cUSD to validator and validator groups aren't captured by Dune, so as a rough heuristic, we're assuming that all cUSD outflows must have had original inflows via epoch rewards
 
 ### Example
 
-- Bob sent 10 cUSD on day 1 of the snapshot period
-- Bob received 5 cUSD on day 100 of the snapshot period
-- Bob has sent 10 cEUR at day 365 of the snapshot period
+- Bob sent 100 cUSD on day 1 of the snapshot period
+- Bob received 50 cUSD on day 100 of the snapshot period
+- Bob has sent 100 cEUR at day 365 of the snapshot period
 - The average cEUR/USD exchange rate over the 365 days snapshot period was 1.05
-- Bob has a total volume of 10 cUSD (spent) + 5 cUSD (received) + (10 cEUR * 1.05 exchange rate = 10.5 cUSD) = $25.5 total volume
+- Bob has a total volume of 100 cUSD (spent) + 50 cUSD (received) + (100 cEUR * 1.05 exchange rate = 105 cUSD) = **$255 total volume**
 
 ## 3. cStables Balances
 
 The average cStable balance (cUSD/cEUR/cREAL) denominated in USD across a 1-year timeframe.
 
-- [Final Snapshot - cStable Balances](./final-snhapshots/cstable-balances)
+- [Final Snapshot - cStable Balances](./final-snhapshots/cstable-balances.csv)
 - [Dune Query that was used to export 12 snapshot CSVs at different dates](https://dune.com/queries/3144937/5269961)
 
 ### Calculation Method
