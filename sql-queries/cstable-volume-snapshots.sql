@@ -1,8 +1,4 @@
 WITH
-    --
-    --
-    -- Prices
-    --
     -- Combine cUSD, cEUR, and BRL prices in one table 
     average_prices AS (
         SELECT
@@ -242,13 +238,13 @@ SELECT
     -- including a column with address metadata for contract addresses to simplify manual snapshot review
     CASE
     -- If there's a contract creation TX hash for this address, it means it should be contract (and not an EOA)
-        WHEN creation_trace.tx_hash IS NOT NULL THEN (
+        WHEN COUNT(creation_trace.tx_hash) > 0 THEN (
             CASE
             -- If the address is on the safe_celo.safes Dune table, label it as 'Gnosis Safe'
-                WHEN gnosis_safe.tx_hash IS NOT NULL THEN 'Gnosis Safe'
+                WHEN COUNT(gnosis_safe.tx_hash) > 0 THEN 'Gnosis Safe'
                 -- else if Dune has a contract name (available for many verified contracts), use the contract name.
                 -- (annoyingly, some contracts have more than 1 name which is why this complicated merging of contract names into 1 column is required)
-                WHEN array_join (array_agg (contract.name), ', ') != '' THEN array_join (array_agg (contract.name), ', ')
+                WHEN COUNT(contract.name) > 0 THEN array_join (array_agg (contract.name), ', ')
                 -- else tag it as 'unverified'
                 ELSE 'unverified'
             END
@@ -272,14 +268,10 @@ WHERE
     -- min. $10 USD total volume to qualify
     COALESCE(cUSD.volume_in_usd, 0) + COALESCE(cEUR.volume_in_usd, 0) + COALESCE(cREAL.volume_in_usd, 0) >= 100
     AND COALESCE(cUSD.address, cEUR.address, cREAL.address) != 0x0000000000000000000000000000000000000000
-    --
-    -- This group-by clause is necessary because 1 address can possibly have multiple contract names on
-    -- the celo.contracts table which would lead to multiple rows for the same address potentially leading
-    -- to double-counting for eligibility.
 GROUP BY
+    -- NOTE: Do not group by creation_trace.address because the same address could have been
+    -- self-destructed and re-initialized multiple times resulting in duplicate rows
     COALESCE(cUSD.address, cEUR.address, cREAL.address),
-    creation_trace.tx_hash,
-    gnosis_safe.tx_hash,
     cUSD.volume,
     cUSD.volume_in_usd,
     cEUR.volume,
