@@ -6,7 +6,7 @@ import generateOutputCsv from './generate-output-csv.js'
 import getValidators from '../../helpers/get-validators.js'
 import loadDuneSnapshotFiles from './get-individual-snapshot-files.js'
 import sumUpBalancesFromSnapshots from './sum-up-balances-from-snapshot-csv.js'
-import sortBalancesByTotal from './sort-balances-by-total.js'
+import sortByTotal from './sort-by-total.js'
 import type { CStableBalances } from './types.js'
 
 // Process all individual snapshot files and populate balances object with aggregate total balances across all snapshots
@@ -21,7 +21,9 @@ console.log('') // output formatting
 
 const averageBalances = calculateAverageBalances(totalBalances)
 const balancesExcludingDust = filterOutSmallBalances(averageBalances) // Min. average balance for eligibility is > $10
-const balancesSortedByTotal = sortBalancesByTotal(balancesExcludingDust)
+const balancesSortedByTotal = sortByTotal(
+  balancesExcludingDust
+) as CStableBalances
 const balancesExcludingValidators = filterOutValidators(
   balancesSortedByTotal,
   await getValidators()

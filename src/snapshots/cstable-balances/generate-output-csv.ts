@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
-import type { CStableBalances } from './types.js'
 import ora from 'ora'
+import type { CStableBalances } from './types.js'
 
 /**
  * Generates final output CSV combining all snapshots into average balances sorted from highest to lowest

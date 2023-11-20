@@ -2,12 +2,12 @@ import getValidators from '../../helpers/get-validators.js'
 import writeSnapshotBalancesToCsv from './write-snapshot-balances-to-csv.js'
 import getAllBalancesFor from './get-all-balances.js'
 import snapshots from './snapshots.js'
-import checkIfFileExists from '../../helpers/check-if-file-exists.js'
+import checkIfFileExists from '../../helpers/file-exists.js'
 import transformDateToFilename from '../../helpers/transform-date-to-filename.js'
 import ora from 'ora'
 import bold from '../../helpers/bold.js'
 import path from 'path'
-import sortBalancesByTotal from '../cstable-balances/sort-balances-by-total.js'
+import sortByTotal from '../cstable-balances/sort-by-total.js'
 import calculateAverageBalances from '../cstable-balances/calculate-average-balances.js'
 import sumUpBalancesFromSnapshotCsv from '../cstable-balances/sum-up-balances-from-snapshot-csv.js'
 import type { CStableBalances } from '../cstable-balances/types.js'
@@ -55,7 +55,9 @@ for (const snapshot of snapshots) {
   }
 
   const snapshotBalances = await getAllBalancesFor(validators, snapshot)
-  const sortedSnapshotBalances = sortBalancesByTotal(snapshotBalances)
+  const sortedSnapshotBalances = sortByTotal(
+    snapshotBalances
+  ) as CStableBalances
   await writeSnapshotBalancesToCsv(sortedSnapshotBalances, snapshot.date, type)
 }
 
@@ -71,7 +73,9 @@ console.log('') // output formatting
 
 const averageBalances = calculateAverageBalances(totalBalances)
 const balancesExcludingDust = filterOutSmallBalances(averageBalances) // Min. average balance for eligibility is > $10
-const sortedTotalBalances = sortBalancesByTotal(balancesExcludingDust)
+const sortedTotalBalances = sortByTotal(
+  balancesExcludingDust
+) as CStableBalances
 
 const finalOutputSnapshotFile =
   process.cwd() +
