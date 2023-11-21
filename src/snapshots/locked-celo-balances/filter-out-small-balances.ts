@@ -5,6 +5,6 @@ import type { LockedCeloBalances } from './index.js'
  */
 export default function filterOutSmallBalances(balances: LockedCeloBalances) {
   return Object.fromEntries(
-    Object.entries(balances).filter(([_, balance]) => balance.total >= 10)
+    Object.entries(balances).filter(([_, balance]) => balance.totalInUsd >= 10)
   )
 }

@@ -15,7 +15,7 @@ This repo contains 3 snapshots as per the eligibility criteria provided in [#289
 1. Given the list of Dune-generated addresses, fetch the actual `LockedCelo` balance at the snapshot time from a Celo archive node
 1. Sum up actual LockedCelo balances at all 12 snapshots
 1. Calculate the average LockedCelo over all 12 snapshots
-1. Filter out addresses with less than 10 in average LockedCelo
+1. Filter out addresses with less than $10 USD worth of LockedCelo on average
 
 ## 2. cStables Volume
 
