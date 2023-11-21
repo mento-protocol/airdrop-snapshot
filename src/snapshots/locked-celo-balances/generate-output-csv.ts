@@ -1,20 +1,35 @@
 import fs from 'node:fs/promises'
 import ora from 'ora'
 import type { LockedCeloBalances } from './index.js'
+import path from 'node:path'
 
 /**
- * Generates final output CSV combining all snapshots into average balances sorted from highest to lowest
+ * Depending on `type` param, can generate
+ * - Individual snapshot CSVs
+ * - Total output CSV combining all snapshots into average balances
  */
 export default async function generateOutputCsv(
-  totalAverageBalances: LockedCeloBalances,
-  outputPath: string
+  balances: LockedCeloBalances,
+  outputPath: string,
+  type: 'individual' | 'total'
 ) {
-  const spinner = ora(`Writing total average balances to ${outputPath}`).start()
+  const spinner = ora(
+    `Writing locked celo balances to ${path.basename(outputPath)}`
+  ).start()
   try {
-    let csvData = 'Address,Average Locked Celo Balance\n'
+    let csvData =
+      type === 'individual'
+        ? 'Address,Locked Celo Balance,Locked Celo in USD,Snapshot Date\n'
+        : 'Address,Average Locked Celo Balance,Average Locked Celo in USD\n'
 
-    csvData += Object.keys(totalAverageBalances)
-      .map((address) => `${address},${totalAverageBalances[address]}`)
+    csvData += Object.keys(balances)
+      .map((address) =>
+        type === 'individual'
+          ? `${address},${balances[address].total},${
+              balances[address].totalInUsd
+            },${path.basename(outputPath).replace('.out.csv', '')}`
+          : `${address},${balances[address].total},${balances[address].totalInUsd}`
+      )
       .join('\n')
 
     await fs.writeFile(outputPath, csvData)

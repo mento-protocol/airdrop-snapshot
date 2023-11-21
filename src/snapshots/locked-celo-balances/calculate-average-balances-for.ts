@@ -36,7 +36,8 @@ export default async function calculateAverageBalancesFor(
 
   await generateOutputCsv(
     balancesExcludingValidators,
-    'src/snapshots/locked-celo-balances/total-average-locked-celo-across-all-snapshots.csv'
+    'src/snapshots/locked-celo-balances/total-average-locked-celo-across-all-snapshots.csv',
+    'total'
   )
 
   console.log(
@@ -65,7 +66,7 @@ function calculateAverageBalance(
 ): LockedCeloBalances {
   return Object.fromEntries(
     Object.entries(balances).map(([address, bal]) => {
-      return [address, bal / 12]
+      return [address, bal.total / 12, bal.totalInUsd / 12]
     })
   )
 }
@@ -75,6 +76,6 @@ function calculateAverageBalance(
  */
 function filterOutSmallBalances(balances: LockedCeloBalances) {
   return Object.fromEntries(
-    Object.entries(balances).filter(([address, balance]) => balance >= 10)
+    Object.entries(balances).filter(([_, balance]) => balance.total >= 10)
   )
 }

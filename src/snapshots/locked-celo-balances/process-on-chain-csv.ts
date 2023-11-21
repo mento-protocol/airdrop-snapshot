@@ -62,11 +62,11 @@ export default async function processOnChainCsv(
 
         // If address hasn't been added to mapping yet, create it
         if (!balances[address]) {
-          balances[address] = 0
+          balances[address].total = 0
         }
 
         // Add snapshot balances
-        balances[address] += row['Locked Celo Balance']
+        balances[address].total += row['Locked Celo Balance']
       }
     })
 

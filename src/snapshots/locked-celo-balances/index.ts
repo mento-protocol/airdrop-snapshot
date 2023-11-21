@@ -1,7 +1,12 @@
 import fetchOnChainBalancesFor from './fetch-on-chain-balances.js'
 import calculateAverageBalancesFor from './calculate-average-balances-for.js'
 
-export type LockedCeloBalances = { [address: string]: number }
+export type LockedCeloBalances = {
+  [address: string]: {
+    total: number
+    totalInUsd: number
+  }
+}
 
 // 1. Define snapshot dates
 const snapshotDates = [

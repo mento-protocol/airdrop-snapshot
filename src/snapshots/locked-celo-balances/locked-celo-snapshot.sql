@@ -10,6 +10,20 @@
 -- 3. Write a script that iterates over each address in the CSV and queries
 --    the actual LockedCelo contract at the snapshot time for each address 
 WITH
+    celo_usd_price AS (
+        SELECT
+            symbol,
+            price,
+            minute "time"
+        FROM
+            prices.usd
+        WHERE
+            blockchain = 'celo'
+            AND contract_address = 0x471ece3750da237f93b8e339c536989b8978a438 -- CELO https://celoscan.io/token/0x471ece3750da237f93b8e339c536989b8978a438
+            AND minute = date_trunc ('minute', TIMESTAMP '{{snapshot time}}')
+        LIMIT
+            1
+    ),
     locked AS (
         SELECT
             account AS address,
@@ -39,24 +53,41 @@ WITH
         FROM
             locked
             LEFT OUTER JOIN unlocked ON locked.address = unlocked.address
-        WHERE
-            -- TODO: Remove the WHERE clause and try running the snapshot script with all addresses
-            -- to check if there's any addresses that Dune shows as 0 but that actually had a lockedCelo
-            -- balance on the snapshot date.
-            COALESCE(TRY ((locked.total - unlocked.total) / 1e18), 0) >= CAST(1 as DOUBLE)
+            -- For debug purposes, you can uncomment the WHERE clause below to only show addresses with a balance of at least 1 Locked CELO at the time of snapshot.
+            -- The reason we can't use this in practice is because Dune doesn't account for accrued yield which means the Dune balances will always be lower than the actual balances.
+            -- WHERE
+            -- COALESCE(TRY ((locked.total - unlocked.total) / 1e18), 0) >= CAST(1 as DOUBLE)
         ORDER BY
             balance DESC
     )
 SELECT
-    --   locked_balances.address as Address,
-    '<a href=https://celoscan.io/address/' || cast(locked_balances.address as varchar) || ' target=_blank>' || cast(locked_balances.address as varchar) || '</a>' as Address,
-    locked_balances.balance as "Locked CELO",
+    '<a href=https://celoscan.io/address/' || cast(l.address as varchar) || ' target=_blank>' || cast(l.address as varchar) || '</a>' as Address,
+    l.balance as "Locked CELO",
+    l.balance * p.price as "Locked CELO in USD",
     CASE
-        WHEN creation_trace.tx_hash IS NOT NULL THEN 'Contract'
+    -- If there's a contract creation TX hash for this address, it means it should be contract (and not an EOA)
+        WHEN COUNT(t.tx_hash) > 0 THEN (
+            CASE
+            -- If the address is on the safe_celo.safes Dune table, label it as 'Gnosis Safe'
+                WHEN COUNT(gnosis_safe.tx_hash) > 0 THEN 'Gnosis Safe'
+                -- else if Dune has a contract name (available for many verified contracts), use the contract name.
+                -- (annoyingly, some contracts have more than 1 name which is why this complicated merging of contract names into 1 column is required)
+                WHEN COUNT(contract.name) > 0 THEN array_join (array_agg (contract.name), ', ')
+                -- else tag it as 'unverified'
+                ELSE 'unverified'
+            END
+        )
         ELSE NULL
     END AS "Contract"
 FROM
-    locked_balances
-    LEFT JOIN celo.creation_traces "creation_trace" ON creation_trace.address = locked_balances.address
+    locked_balances l
+    LEFT JOIN celo.contracts "contract" ON contract.address = l.address
+    LEFT JOIN celo.creation_traces t ON t.address = l.address
+    LEFT JOIN safe_celo.safes "gnosis_safe" ON gnosis_safe.address = l.address
+    LEFT JOIN celo_usd_price p ON p.time = date_trunc ('minute', TIMESTAMP '{{snapshot time}}')
+GROUP BY
+    l.address,
+    l.balance,
+    p.price
 ORDER BY
     balance DESC
