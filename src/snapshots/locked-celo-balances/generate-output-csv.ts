@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises'
+import path from 'node:path'
 import ora from 'ora'
 import type { LockedCeloBalances } from './index.js'
-import path from 'node:path'
 
 /**
  * Depending on `type` param, can generate
