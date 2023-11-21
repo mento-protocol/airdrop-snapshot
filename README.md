@@ -11,12 +11,11 @@ This repo contains 3 snapshots as per the eligibility criteria provided in [#289
 
 1. Export 12 snapshot CSVs using the above Dune query to generate a list of addresses that had locked Celo until the snapshot time
    - **❗ Note that the Dune query results on their own are incorrect as they do not factor in accrued yield from locking over time ❗**
-   - Dune can only index emitted `GoldLocked` and `GoldUnlocked` events, so Dune balances should always be lower than the actual on-chain balance was
-1. Given the list of Dune-generated addresses, fetch the actual LockedCelo balance at the snapshot time from a Celo archive node
+   - Dune can only index emitted `GoldLocked` and `GoldUnlocked` events, so Dune balances are lower than the actual on-chain balance
+1. Given the list of Dune-generated addresses, fetch the actual `LockedCelo` balance at the snapshot time from a Celo archive node
 1. Sum up actual LockedCelo balances at all 12 snapshots
 1. Calculate the average LockedCelo over all 12 snapshots
 1. Filter out addresses with less than 10 in average LockedCelo
-1. Filter out validator addresses because their allocation will be calculated separately
 
 ## 2. cStables Volume
 
