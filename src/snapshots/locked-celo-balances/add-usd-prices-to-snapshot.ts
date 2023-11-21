@@ -1,22 +1,18 @@
-import type { Snapshot } from './../snapshots.js'
+import type { LockedCeloBalances } from './index.js'
+import type { Snapshot } from '../snapshots.js'
 import fs from 'node:fs'
 import path from 'node:path'
+import ora from 'ora'
 import { finished } from 'node:stream/promises'
 import { Parser, parse } from 'csv-parse'
 import generateOutputCsv from './generate-output-csv.js'
 import snapshots from '../snapshots.js'
 import transformDateToFilename from '../../helpers/transform-date-to-filename.js'
-import ora from 'ora'
 import bold from '../../helpers/bold.js'
 
-const lockedCeloBalances: {
-  [address: `0x${string}`]: {
-    total: number
-    totalInUsd: number
-  }
-} = {}
+const lockedCeloBalances: LockedCeloBalances = {}
 
-async function addLockedCeloInUsdColumn() {
+async function addLockedCeloInUsdColumnToSnapshot() {
   // 1. Iterate over all snapshots
   for (const snapshot of snapshots) {
     const snapshotFile = path.resolve(
@@ -103,4 +99,4 @@ function parseFile(parser: Parser, snapshot: Snapshot) {
   })
 }
 
-await addLockedCeloInUsdColumn()
+await addLockedCeloInUsdColumnToSnapshot()

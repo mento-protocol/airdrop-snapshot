@@ -1,5 +1,11 @@
+import bold from '../../helpers/bold.js'
+import sortByTotal from '../../helpers/sort-by-total.js'
+import transformDateToFilename from '../../helpers/transform-date-to-filename.js'
+import calculateAverageBalance from './calculate-average-balance.js'
 import fetchOnChainBalancesFor from './fetch-on-chain-balances.js'
-import calculateAverageBalancesFor from './calculate-average-balances-for.js'
+import filterOutSmallBalances from './filter-out-small-balances.js'
+import generateOutputCsv from './generate-output-csv.js'
+import sumUpBalancesFromSnapshotCsv from './sum-up-balances-from-snapshot-csv.js'
 
 export type LockedCeloBalances = {
   [address: string]: {
@@ -7,6 +13,8 @@ export type LockedCeloBalances = {
     totalInUsd: number
   }
 }
+
+const totalBalances: LockedCeloBalances = {}
 
 // 1. Define snapshot dates
 const snapshotDates = [
@@ -28,4 +36,34 @@ const snapshotDates = [
 await fetchOnChainBalancesFor(snapshotDates)
 
 // 3. Calculate average balances across all snapshots
-await calculateAverageBalancesFor(snapshotDates)
+for (const date of snapshotDates) {
+  const inputFileName = `on-chain-output-snapshots/${transformDateToFilename(
+    date
+  )}.out.csv`
+  await sumUpBalancesFromSnapshotCsv(inputFileName, totalBalances)
+}
+
+console.log('') // CLI formatting
+
+const averageBalances = calculateAverageBalance(totalBalances)
+const averageBalancesExclDust = filterOutSmallBalances(averageBalances) // Min. average balance for eligibility is > $10
+const sortedAverageBalances = sortByTotal(
+  averageBalancesExclDust
+) as LockedCeloBalances
+
+await generateOutputCsv(
+  sortedAverageBalances,
+  'src/snapshots/locked-celo-balances/total-average-locked-celo-across-all-snapshots.csv',
+  'total'
+)
+
+console.log(
+  `\nℹ️  ${
+    Object.keys(averageBalances).length
+  } total addresses in individual snapshots'`
+)
+console.log(
+  `ℹ️  ${bold(
+    Object.keys(averageBalancesExclDust).length + ' eligible addresses'
+  )} with an average of >= 10 locked CELO tokens across all snapshots'`
+)

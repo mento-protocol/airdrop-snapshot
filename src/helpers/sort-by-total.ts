@@ -1,6 +1,6 @@
-import type { LockedCeloBalances } from '../snapshots/locked-celo-balances/index.js'
-import type { CStableVolume } from '../snapshots/cstable-volume/index.js'
 import type { CStableBalances } from '../snapshots/cstable-balances/types.js'
+import type { CStableVolume } from '../snapshots/cstable-volume/index.js'
+import type { LockedCeloBalances } from '../snapshots/locked-celo-balances/index.js'
 
 /**
  * Sort entries by total highest to lowest

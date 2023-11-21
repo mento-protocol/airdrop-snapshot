@@ -1,12 +1,12 @@
+import { parse } from 'csv-parse'
 import fs from 'node:fs'
 import path from 'node:path'
 import { finished } from 'node:stream/promises'
-import { parse } from 'csv-parse'
+import fileExists from '../../helpers/file-exists.js'
+import findDuplicateKeys from '../../helpers/find-duplicate-keys.js'
 import getValidators from '../../helpers/get-validators.js'
 import sortByTotal from '../../helpers/sort-by-total.js'
 import generateOutputCsv from './generate-output-csv.js'
-import findDuplicateKeys from '../../helpers/find-duplicate-keys.js'
-import fileExists from '../../helpers/file-exists.js'
 
 export type CStableVolume = {
   [address: string | `0x${string}`]: {

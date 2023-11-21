@@ -1,16 +1,16 @@
 import ora from 'ora'
 import path from 'path'
-import checkIfFileNameAndSnapshotTimeColumnMatch from './check-if-filename-and-snapshot-time-column-match.js'
-import fileExists from '../../helpers/file-exists.js'
-import estimateTimeToFetchAllBalancesFromNode from './estimate-time-to-fetch-balances.js'
-import getBalancesAtBlockNumber from './get-balances-at-block-number.js'
-import transformDateToFilename from '../../helpers/transform-date-to-filename.js'
-import getBlockNumberForDate from '../../helpers/get-block-number-for-date.js'
-import loadDuneSnapshotFile from './load-dune-snapshot-file.js'
 import bold from '../../helpers/bold.js'
+import fileExists from '../../helpers/file-exists.js'
+import getBlockNumberForDate from '../../helpers/get-block-number-for-date.js'
 import sortByTotal from '../../helpers/sort-by-total.js'
-import type { LockedCeloBalances } from './index.js'
+import transformDateToFilename from '../../helpers/transform-date-to-filename.js'
+import checkIfFileNameAndSnapshotTimeColumnMatch from './check-if-filename-and-snapshot-time-column-match.js'
+import estimateTimeToFetchAllBalancesFromNode from './estimate-time-to-fetch-balances.js'
 import generateOutputCsv from './generate-output-csv.js'
+import getBalancesAtBlockNumber from './get-balances-at-block-number.js'
+import type { LockedCeloBalances } from './index.js'
+import loadDuneSnapshotFile from './load-dune-snapshot-file.js'
 
 /**
  * For every snapshot date:
@@ -29,9 +29,7 @@ export default async function processDuneSnapshots(snapshotDates: Date[]) {
       ora(
         `Skipping ${bold(
           path.basename(inputFile)
-        )} because output file already exists: dune-input-snapshots/${bold(
-          path.basename(outputFile)
-        )}`
+        )} because output file already exists`
       ).info()
 
       continue
