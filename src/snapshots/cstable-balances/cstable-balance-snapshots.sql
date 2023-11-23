@@ -77,7 +77,14 @@ WITH
     cUSD AS (
         SELECT
             inflow.address AS address,
-            COALESCE(TRY ((inflow.total - outflow.total) / 1e18), 0) AS balance,
+            COALESCE(
+                TRY (
+                    (
+                        COALESCE(inflow.total, 0) - COALESCE(outflow.total, 0)
+                    ) / 1e18
+                ),
+                0
+            ) AS balance,
             p.price AS price
         FROM
             cUSD_inflow as inflow
@@ -141,7 +148,14 @@ WITH
     cEUR AS (
         SELECT
             inflow.address AS address,
-            COALESCE(TRY ((inflow.total - outflow.total) / 1e18), 0) AS balance,
+            COALESCE(
+                TRY (
+                    (
+                        COALESCE(inflow.total, 0) - COALESCE(outflow.total, 0)
+                    ) / 1e18
+                ),
+                0
+            ) AS balance,
             p.price AS price
         FROM
             cEUR_inflow as inflow
@@ -214,7 +228,14 @@ WITH
     cREAL AS (
         SELECT
             inflow.address AS address,
-            COALESCE(TRY ((inflow.total - outflow.total) / 1e18), 0) AS balance,
+            COALESCE(
+                TRY (
+                    (
+                        COALESCE(inflow.total, 0) - COALESCE(outflow.total, 0)
+                    ) / 1e18
+                ),
+                0
+            ) AS balance,
             p.price AS price
         FROM
             cREAL_inflow as inflow
