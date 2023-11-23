@@ -26,7 +26,9 @@ export default async function generateOutputCsv(
 
         return `${address},${total},${cUSDinUSD || ''},${cEURinUSD || ''},${
           cREALinUSD || ''
-        },${contract},${cUSD || ''},${cEUR || ''},${cREAL || ''}`
+        },${contract?.replace(',', '')},${cUSD || ''},${cEUR || ''},${
+          cREAL || ''
+        }`
       })
       .join('\n')
 
