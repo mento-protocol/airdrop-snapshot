@@ -55,7 +55,7 @@ Volume is defined as all cStable transfers **from** an address + all cStable tra
 
 The average cStable balance (cUSD/cEUR/cREAL) denominated in USD across a 1-year timeframe.
 
-- [Final Snapshot - cStable Balances](./final-snhapshots/cstable-balances.csv)
+- [Final Snapshot - cStable Balances](./final-snapshots/cstable-balances.csv)
 - [Dune Query that was used to export 12 snapshot CSVs at different dates](https://dune.com/queries/3144937/5269961)
 
 ### Example
