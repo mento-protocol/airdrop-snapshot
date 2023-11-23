@@ -252,6 +252,8 @@ WITH
     --
     --
 SELECT
+    -- For exporting to CSV from Dune, flip this on and comment out the next column get a cleaner address column in the export CSV
+    -- COALESCE(cUSD.address, cEUR.address, cREAL.address) as Address,
     '<a href=https://celoscan.io/address/' || cast(
         COALESCE(cUSD.address, cEUR.address, cREAL.address) as varchar
     ) || ' target=_blank>' || cast(
@@ -270,7 +272,7 @@ SELECT
                 WHEN gnosis_safe.tx_hash IS NOT NULL THEN 'Gnosis Safe'
                 -- else if Dune has a contract name (available for many verified contracts), use the contract name.
                 -- (annoyingly, some contracts have more than 1 name which is why this complicated merging of contract names into 1 column is required)
-                WHEN array_join (array_agg (contract.name), ', ') != '' THEN array_join (array_agg (contract.name), ', ')
+                WHEN array_join (array_agg (contract.name), '/') != '' THEN array_join (array_agg (contract.name), '/')
                 -- else tag it as 'unverified'
                 ELSE 'unverified'
             END
