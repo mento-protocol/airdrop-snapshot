@@ -49,7 +49,17 @@ WITH
     locked_balances AS (
         SELECT
             locked.address AS address,
-            COALESCE(TRY ((locked.total - unlocked.total) / 1e18), 0) AS balance
+            -- The inner COALESCE is to handle the case where there are no unlocked balances for an address.
+            -- i.e. the address could have locked CELO but never unlocked any, which would make `unlocked.total`
+            -- NULL here and cause the subtraction to fail. (because 100 - NULL = NULL)
+            COALESCE(
+                TRY (
+                    (
+                        COALESCE(locked.total, 0) - COALESCE(unlocked.total, 0)
+                    ) / 1e18
+                ),
+                0
+            ) AS balance
         FROM
             locked
             LEFT OUTER JOIN unlocked ON locked.address = unlocked.address
