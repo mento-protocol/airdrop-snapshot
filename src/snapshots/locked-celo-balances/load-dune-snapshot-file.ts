@@ -1,12 +1,13 @@
-import path from 'node:path'
-import fs from 'node:fs/promises'
 import { parse } from 'csv-parse/sync'
+import fs from 'node:fs/promises'
+import path from 'node:path'
 import ora from 'ora'
+import type { Address } from 'viem'
 import bold from '../../helpers/bold.js'
 
 // Schema of the Dune query export
 export type DuneCsv = [
-  `0x${string}`,
+  Address,
   `<a href=${string}`,
   string,
   'Contract' | '',

@@ -1,10 +1,11 @@
+import { Parser, parse } from 'csv-parse'
 import fs from 'node:fs'
 import path from 'node:path'
 import { finished } from 'node:stream/promises'
-import { Parser, parse } from 'csv-parse'
-import type { CStableBalances } from './types.js'
+import type { Address } from 'viem'
 import sortByTotal from '../../helpers/sort-by-total.js'
 import generateOutputCsv from './generate-output-csv.js'
+import type { CStableBalances } from './types.js'
 
 const mergedBalances: CStableBalances = {}
 
@@ -64,7 +65,7 @@ function getParser(filePath: string) {
 function parseFile(parser: Parser) {
   parser.on('readable', function () {
     let row: {
-      Address: string
+      Address: Address
       'Average Total cStables in USD': number
       'Average cUSD in USD': number
       'Average cEUR in USD': number

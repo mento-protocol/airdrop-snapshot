@@ -1,6 +1,8 @@
+import type { Address } from 'viem'
+
 // Our main object we'll use to sum up balances for each address across all snapshots
 export type CStableBalances = {
-  [address: string | `0x${string}`]: CStableBalance
+  [address: Address]: CStableBalance
 }
 
 export type CStableBalance = {

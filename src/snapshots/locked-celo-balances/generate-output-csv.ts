@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import ora from 'ora'
+import type { Address } from 'viem'
 import type { LockedCeloBalances } from './index.js'
 
 /**
@@ -25,10 +26,12 @@ export default async function generateOutputCsv(
     csvData += Object.keys(balances)
       .map((address) =>
         type === 'individual'
-          ? `${address},${balances[address].total},${
-              balances[address].totalInUsd
+          ? `${address},${balances[address as Address].total},${
+              balances[address as Address].totalInUsd
             },${path.basename(outputPath).replace('.out.csv', '')}`
-          : `${address},${balances[address].total},${balances[address].totalInUsd}`
+          : `${address},${balances[address as Address].total},${
+              balances[address as Address].totalInUsd
+            }`
       )
       .join('\n')
 

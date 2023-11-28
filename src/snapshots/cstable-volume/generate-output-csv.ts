@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises'
 import ora from 'ora'
+import type { Address } from 'viem'
 import type { CStableVolume } from '../cstable-volume/index.js'
 
 export default async function generateOutputCsv(
@@ -22,7 +23,7 @@ export default async function generateOutputCsv(
           cEUR,
           cREAL,
           contract,
-        } = volumes[address]
+        } = volumes[address as Address]
 
         return `${address},${total},${cUSDinUSD || ''},${cEURinUSD || ''},${
           cREALinUSD || ''

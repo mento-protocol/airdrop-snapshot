@@ -1,10 +1,11 @@
-import CUSD_ABI from './abis/cusd.js'
-import CEUR_ABI from './abis/ceur.js'
-import CREAL_ABI from './abis/creal.js'
+import type { Address } from 'viem'
 import { getContract } from 'viem'
 import getBlockchainClient from '../../../helpers/get-blockchain-client.js'
-import type { CStableBalance } from '../types.js'
 import type { Prices } from '../../snapshots.js'
+import type { CStableBalance } from '../types.js'
+import CEUR_ABI from './abis/ceur.js'
+import CREAL_ABI from './abis/creal.js'
+import CUSD_ABI from './abis/cusd.js'
 
 const CUSD_ADDRESS = '0x765de816845861e75a25fca122bb6898b8b1282a'
 const CEUR_ADDRESS = '0xd8763cba276a3738e6de85b4b3bf5fded6d6ca73'
@@ -29,7 +30,7 @@ const cREAL = getContract({
 })
 
 export default async function getAddressBalance(
-  address: `0x${string}`,
+  address: Address,
   blockNumber: bigint,
   prices: Prices
 ): Promise<CStableBalance> {

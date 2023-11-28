@@ -2,11 +2,12 @@ import { parse } from 'csv-parse'
 import fs from 'node:fs'
 import { finished } from 'node:stream/promises'
 import ora from 'ora'
+import type { Address } from 'viem'
 import bold from '../../helpers/bold.js'
 import type { LockedCeloBalances } from './index.js'
 
 // Schema of the Dune query export: Address | Locked Celo Balance | Snapshot Date
-export type OnChainCsv = [`0x${string}`, number, Date]
+export type OnChainCsv = [Address, number, Date]
 
 /**
  * Loads a Dune Snapshot CSV export into memory
@@ -49,7 +50,7 @@ export default async function sumUpBalancesFromSnapshotCsvs(
     parser.on('readable', function () {
       try {
         let row: {
-          Address: string
+          Address: Address
           'Locked Celo Balance': number
           'Locked Celo in USD': number
           'Snapshot Date': Date

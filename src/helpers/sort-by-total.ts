@@ -1,3 +1,4 @@
+import type { Address } from 'viem'
 import type { CStableBalances } from '../snapshots/cstable-balances/types.js'
 import type { CStableVolume } from '../snapshots/cstable-volume/index.js'
 import type { LockedCeloBalances } from '../snapshots/locked-celo-balances/index.js'
@@ -15,7 +16,7 @@ export default function sortByTotal(
         acc: LockedCeloBalances | CStableBalances | CStableVolume,
         [key, value]
       ) => {
-        acc[key] = value
+        acc[key as Address] = value
         return acc
       },
       {}

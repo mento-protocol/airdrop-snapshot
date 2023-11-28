@@ -2,6 +2,7 @@ import { parse } from 'csv-parse'
 import fs from 'node:fs'
 import path from 'node:path'
 import { finished } from 'node:stream/promises'
+import type { Address } from 'viem'
 import fileExists from '../../helpers/file-exists.js'
 import findDuplicateKeys from '../../helpers/find-duplicate-keys.js'
 import getValidators from '../../helpers/get-validators.js'
@@ -9,7 +10,7 @@ import sortByTotal from '../../helpers/sort-by-total.js'
 import generateOutputCsv from './generate-output-csv.js'
 
 export type CStableVolume = {
-  [address: string | `0x${string}`]: {
+  [address: Address]: {
     total: number | null
     cUSDinUSD: number | null
     cEURinUSD: number | null
@@ -65,7 +66,7 @@ const parser = fs.createReadStream(snapshotPath).pipe(
 // 3. Load dune volume snapshot csv into memory and double validator's cUSD volume
 parser.on('readable', function () {
   let row: {
-    Address: `0x${string}`
+    Address: Address
     'Total Volume in USD': number
     'cUSD Volume in USD': number
     'cEUR Volume in USD': number

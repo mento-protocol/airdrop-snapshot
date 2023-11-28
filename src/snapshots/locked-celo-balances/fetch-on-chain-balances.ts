@@ -1,5 +1,6 @@
 import ora from 'ora'
 import path from 'path'
+import type { Address } from 'viem'
 import bold from '../../helpers/bold.js'
 import fileExists from '../../helpers/file-exists.js'
 import getBlockNumberForDate from '../../helpers/get-block-number-for-date.js'
@@ -44,7 +45,7 @@ export default async function fetchOnChainBalances(snapshotDates: Date[]) {
       // remove header row
       .filter((_, i: number) => i > 0)
       // Addresses are in first column of Dune export
-      .map((row) => row[0]) as Array<`0x${string}`>
+      .map((row) => row[0]) as Address[]
 
     estimateTimeToFetchAllBalancesFromNode(addresses)
 
