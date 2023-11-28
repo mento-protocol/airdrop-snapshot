@@ -18,7 +18,7 @@ import loadDuneSnapshotFile from './load-dune-snapshot-file.js'
  *  b) Fetch actual on-chain LockedCelo balances from archive node
  *  c) Write balances to new output CSV (1 output CSV per snapshot)
  */
-export default async function processDuneSnapshots(snapshotDates: Date[]) {
+export default async function fetchOnChainBalances(snapshotDates: Date[]) {
   for (const date of snapshotDates) {
     const snapshotFileName = transformDateToFilename(date)
     const inputFile = `${process.cwd()}/src/snapshots/locked-celo-balances/dune-input-snapshots/${snapshotFileName}.in.csv`
