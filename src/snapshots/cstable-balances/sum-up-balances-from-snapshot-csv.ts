@@ -1,10 +1,11 @@
-import type { CStableBalances } from './types.js'
-import path from 'node:path'
-import fs from 'node:fs'
-import { finished } from 'node:stream/promises'
 import { parse } from 'csv-parse'
+import fs from 'node:fs'
+import path from 'node:path'
+import { finished } from 'node:stream/promises'
 import ora from 'ora'
+import type { Address } from 'viem'
 import bold from '../../helpers/bold.js'
+import type { CStableBalances } from './types.js'
 
 export default async function sumUpBalancesFromSnapshotCsv(
   file: string,
@@ -39,7 +40,7 @@ export default async function sumUpBalancesFromSnapshotCsv(
 
     parser.on('readable', function () {
       let row: {
-        Address: string
+        Address: Address
         'Total cStables in USD': number
         'cUSD in USD': number
         'cEUR in USD': number

@@ -1,9 +1,10 @@
 import ora from 'ora'
+import type { Address } from 'viem'
 import { formatEther, getContract } from 'viem'
-import LockedCeloAbi from './locked-celo-abi.js'
-import getClient from '../../helpers/get-blockchain-client.js'
 import bold from '../../helpers/bold.js'
+import getClient from '../../helpers/get-blockchain-client.js'
 import type { LockedCeloBalances } from './index.js'
+import LockedCeloAbi from './locked-celo-abi.js'
 
 const LOCKED_CELO_PROXY = '0x6cc083aed9e3ebe302a6336dbc7c921c9f03349e'
 
@@ -11,7 +12,7 @@ const LOCKED_CELO_PROXY = '0x6cc083aed9e3ebe302a6336dbc7c921c9f03349e'
  * Fetches LockedCelo balances at a past block from an archive node
  */
 export default async function getBalancesAtBlockNumber(
-  addresses: Array<`0x${string}`>,
+  addresses: Address[],
   blockNumber: bigint
 ): Promise<LockedCeloBalances> {
   const spinner = ora(
@@ -58,7 +59,7 @@ export default async function getBalancesAtBlockNumber(
 }
 
 async function getLockedCeloBalanceForBlock(
-  address: `0x${string}`,
+  address: Address,
   blockNumber: bigint
 ): Promise<bigint> {
   const LockedCelo = getContract({

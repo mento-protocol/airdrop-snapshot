@@ -1,11 +1,12 @@
 import ora from 'ora'
+import type { Address } from 'viem'
 import bold from '../../helpers/bold.js'
 
 /**
  * Little helper to gauge how long it'll take to fetch balances for an array of addresses from an archive node
  */
 export default function estimateTimeToFetchAllBalancesFromNode(
-  addresses: Array<`0x${string}`>
+  addresses: Address[]
 ) {
   // NOTE: Empirical value of 400 fetches per second on a 50MBit/s connection using a standard Infura node
   const addressesPerMinute = 400

@@ -16,6 +16,7 @@ This repo contains 3 snapshots as per the eligibility criteria provided in [#289
 1. Sum up actual LockedCelo balances at all 12 snapshots
 1. Calculate the average LockedCelo over all 12 snapshots
 1. Filter out addresses with less than $10 USD worth of LockedCelo on average
+1. Map addresses that belong to `ReleaseGold` vesting contracts to their respective beneficiaries
 
 ## 2. cStables Volume
 

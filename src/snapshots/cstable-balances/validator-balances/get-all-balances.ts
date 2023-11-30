@@ -1,12 +1,13 @@
 import ora from 'ora'
+import type { Address } from 'viem'
 import bold from '../../../helpers/bold.js'
-import getAddressBalance from './get-address-balance.js'
 import getBlockNumberForDate from '../../../helpers/get-block-number-for-date.js'
-import type { CStableBalances } from '../types.js'
 import type { Snapshot } from '../../snapshots.js'
+import type { CStableBalances } from '../types.js'
+import getAddressBalance from './get-address-balance.js'
 
 export default async function getAllBalancesFor(
-  addresses: Array<`0x${string}`>,
+  addresses: Address[],
   snapshot: Snapshot
 ): Promise<CStableBalances> {
   const blockNumber = await getBlockNumberForDate(snapshot.date)

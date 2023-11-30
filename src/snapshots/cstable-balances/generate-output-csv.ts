@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises'
 import ora from 'ora'
+import type { Address } from 'viem'
 import type { CStableBalances } from './types.js'
 
 /**
@@ -17,7 +18,7 @@ export default async function generateOutputCsv(
     csvData += Object.keys(balances)
       .map((address) => {
         const { total, cUSDinUSD, cEURinUSD, cREALinUSD, cUSD, cEUR, cREAL } =
-          balances[address]
+          balances[address as Address]
 
         return `${address},${total},${cUSDinUSD},${cEURinUSD},${cREALinUSD},${cUSD},${cEUR},${cREAL}`
       })

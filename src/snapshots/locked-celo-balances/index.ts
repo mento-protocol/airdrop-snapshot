@@ -1,3 +1,4 @@
+import type { Address } from 'viem'
 import bold from '../../helpers/bold.js'
 import sortByTotal from '../../helpers/sort-by-total.js'
 import transformDateToFilename from '../../helpers/transform-date-to-filename.js'
@@ -8,7 +9,7 @@ import generateOutputCsv from './generate-output-csv.js'
 import sumUpBalancesFromSnapshotCsv from './sum-up-balances-from-snapshot-csv.js'
 
 export type LockedCeloBalances = {
-  [address: string]: {
+  [address: Address]: {
     total: number
     totalInUsd: number
   }

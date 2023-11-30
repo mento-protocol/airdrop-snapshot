@@ -1,11 +1,12 @@
 import { parse } from 'csv-parse/sync'
 import fs from 'node:fs/promises'
-import fileExists from './file-exists.js'
 import path from 'node:path'
+import type { Address } from 'viem'
+import fileExists from './file-exists.js'
 
 export default async function getValidators(
   type: 'validators' | 'validator-groups' = 'validators'
-): Promise<Array<`0x${string}`>> {
+): Promise<Address[]> {
   const filePath = path.resolve(
     `src/snapshots/validators-and-groups/celo-${type}.csv`
   )
