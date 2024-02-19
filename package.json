@@ -24,6 +24,7 @@
     "@types/node": "^20.8.9",
     "csv-parse": "^5.5.2",
     "env-var": "^7.4.1",
+    "evmole": "^0.1.2",
     "leasot": "^13.3.0",
     "ora": "^7.0.1",
     "typescript": "^5.2.2",
