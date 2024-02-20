@@ -10,7 +10,7 @@ export default async function generateOutputCsv(
   const spinner = ora(`Writing adjusted volumes to ${outputPath}`).start()
   try {
     let csvData =
-      'Address,Total Volume in USD,cUSD Volume in USD,cEUR Volume in USD,cREAL Volume in USD,Contract,cUSD Volume,cEUR Volume,cREAL Volume\n'
+      'Address,Total Volume in USD,Contract,Beneficiary,cUSD Volume in USD,cEUR Volume in USD,cREAL Volume in USD,cUSD Volume,cEUR Volume,cREAL Volume\n'
 
     csvData += Object.keys(volumes)
       .map((address) => {
@@ -23,13 +23,15 @@ export default async function generateOutputCsv(
           cEUR,
           cREAL,
           contract,
+          beneficiary,
         } = volumes[address as Address]
 
-        return `${address},${total},${cUSDinUSD || ''},${cEURinUSD || ''},${
+        return `${address},${total},${contract?.replace(
+          /\,/g,
+          ''
+        )},${beneficiary},${cUSDinUSD || ''},${cEURinUSD || ''},${
           cREALinUSD || ''
-        },${contract?.replace(',', '')},${cUSD || ''},${cEUR || ''},${
-          cREAL || ''
-        }`
+        },${cUSD || ''},${cEUR || ''},${cREAL || ''}`
       })
       .join('\n')
 

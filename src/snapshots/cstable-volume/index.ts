@@ -7,20 +7,34 @@ import fileExists from '../../helpers/file-exists.js'
 import findDuplicateKeys from '../../helpers/find-duplicate-keys.js'
 import getValidators from '../../helpers/get-validators.js'
 import sortByTotal from '../../helpers/sort-by-total.js'
+import loadReleaseGoldAddressesFromCsv from '../locked-celo-balances/release-gold/load-release-gold-addresses-from-csv.js'
 import generateOutputCsv from './generate-output-csv.js'
 
 export type CStableVolume = {
   [address: Address]: {
     total: number | null
+    contract: string | null
+    beneficiary: string | null
     cUSDinUSD: number | null
     cEURinUSD: number | null
     cREALinUSD: number | null
-    contract: string | null
     cUSD: number | null
     cEUR: number | null
     cREAL: number | null
   }
 }
+
+type CStableVolumeCSV = [
+  address: Address,
+  totalVolumeInUSD: number,
+  contract: string,
+  cUSDVolumeinUSD: number,
+  cEURVolumeinUSD: number,
+  cREALVolumeinUSD: number,
+  cUSDVolume: number,
+  cEURVolume: number,
+  cREALVolume: number
+]
 
 const results = []
 
@@ -63,15 +77,29 @@ const parser = fs.createReadStream(snapshotPath).pipe(
   })
 )
 
-// 3. Load dune volume snapshot csv into memory and double validator's cUSD volume
+// 3. Load release gold addresses from csv to check snapshot for release gold contracts
+const releaseGoldFile = path.resolve('src/snapshots/release-gold-addresses.csv')
+let releaseGoldBeneficiaryMap: Record<Address, Address> = {}
+if (
+  !(await fileExists(path.resolve('src/snapshots/release-gold-addresses.csv')))
+) {
+  throw new Error('Release gold addresses file not found')
+} else {
+  releaseGoldBeneficiaryMap = await loadReleaseGoldAddressesFromCsv(
+    releaseGoldFile
+  )
+}
+
+// 4. Load dune volume snapshot csv into memory and double validator's cUSD volume
 parser.on('readable', function () {
   let row: {
     Address: Address
     'Total Volume in USD': number
+    Contract: string
+    Beneficiary: string
     'cUSD Volume in USD': number
     'cEUR Volume in USD': number
     'cREAL Volume in USD': number
-    Contract: string
     'cUSD Volume': number
     'cEUR Volume': number
     'cREAL Volume': number
@@ -84,10 +112,11 @@ parser.on('readable', function () {
     if (!adjustedVolume[address]) {
       adjustedVolume[address] = {
         total: null,
+        contract: '',
+        beneficiary: '',
         cUSDinUSD: null,
         cEURinUSD: null,
         cREALinUSD: null,
-        contract: null,
         cUSD: null,
         cEUR: null,
         cREAL: null,
@@ -95,16 +124,16 @@ parser.on('readable', function () {
     }
 
     adjustedVolume[address].total = row['Total Volume in USD']
+    adjustedVolume[address].contract = row['Contract']
     adjustedVolume[address].cUSDinUSD = row['cUSD Volume in USD']
     adjustedVolume[address].cEURinUSD = row['cEUR Volume in USD']
     adjustedVolume[address].cREALinUSD = row['cREAL Volume in USD']
     adjustedVolume[address].cUSD = row['cUSD Volume']
     adjustedVolume[address].cEUR = row['cEUR Volume']
     adjustedVolume[address].cREAL = row['cREAL Volume']
-    adjustedVolume[address].contract = row['Contract']
 
     /*
-     * 4. Double Validator cUSD Volumes
+     * 5. Double Validator cUSD Volumes
      * For every validator or validator group address, multiply volume by 2 to account for inflows
      *
      * Why?
@@ -127,22 +156,29 @@ parser.on('readable', function () {
       adjustedVolume[address].total =
         row['Total Volume in USD'] + row['cUSD Volume in USD']
     }
+
+    /*
+     * 6. Check for release gold addresses and populate the 'Beneficiary' field if found
+     */
+    if (releaseGoldBeneficiaryMap.hasOwnProperty(address)) {
+      adjustedVolume[address].beneficiary = releaseGoldBeneficiaryMap[address]
+    }
   }
 })
 
 await finished(parser)
 
-// 5. Check for duplicate addresses
+// 7. Check for duplicate addresses
 const dupes = findDuplicateKeys(adjustedVolume)
 if (dupes.length) {
   throw new Error(`Duplicate addresses found: ${dupes.join('\n- ')})}`)
 }
 
-// 6. Sort rows by total volume in USD
+// 8. Sort rows by total volume in USD
 const sortedVolumes = sortByTotal(adjustedVolume) as CStableVolume
 
-// 7. Write final output csv
+// 9. Write final output csv
 await generateOutputCsv(
   sortedVolumes,
-  'src/snapshots/cstable-volume/cstable-volume-with-adjusted-validator-inflows.csv'
+  'src/snapshots/cstable-volume/cstable-volume-processed.csv'
 )
