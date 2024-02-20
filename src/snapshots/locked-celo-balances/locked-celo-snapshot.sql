@@ -71,33 +71,37 @@ WITH
             balance DESC
     )
 SELECT
-    '<a href=https://celoscan.io/address/' || cast(l.address as varchar) || ' target=_blank>' || cast(l.address as varchar) || '</a>' as Address,
+    l.address as Address,
+    '<a href=https://celoscan.io/address/' || cast(l.address as varchar) || ' target=_blank>CeloScan 🔗</a>' as CeloScan,
     l.balance as "Locked CELO",
-    l.balance * p.price as "Locked CELO in USD",
+    -- l.balance * p.price as "Locked CELO in USD",
     CASE
     -- If there's a contract creation TX hash for this address, it means it should be contract (and not an EOA)
-        WHEN COUNT(t.tx_hash) > 0 THEN (
+        WHEN creation_trace.tx_hash IS NOT NULL THEN (
             CASE
             -- If the address is on the safe_celo.safes Dune table, label it as 'Gnosis Safe'
-                WHEN COUNT(gnosis_safe.tx_hash) > 0 THEN 'Gnosis Safe'
+                WHEN gnosis_safe.tx_hash IS NOT NULL THEN 'Gnosis Safe'
                 -- else if Dune has a contract name (available for many verified contracts), use the contract name.
                 -- (annoyingly, some contracts have more than 1 name which is why this complicated merging of contract names into 1 column is required)
-                WHEN COUNT(contract.name) > 0 THEN array_join (array_agg (contract.name), ', ')
+                WHEN array_join (array_agg (contract.name), '/') != '' THEN array_join (array_agg (contract.name), '/')
                 -- else tag it as 'unverified'
-                ELSE 'unverified'
+                ELSE 'Contract'
             END
         )
         ELSE NULL
-    END AS "Contract"
+    END AS "Contract",
+    '{{snapshot time}}' "Snapshot Time"
 FROM
     locked_balances l
     LEFT JOIN celo.contracts "contract" ON contract.address = l.address
-    LEFT JOIN celo.creation_traces t ON t.address = l.address
+    LEFT JOIN celo.creation_traces "creation_trace" ON creation_trace.address = l.address
     LEFT JOIN safe_celo.safes "gnosis_safe" ON gnosis_safe.address = l.address
     LEFT JOIN celo_usd_price p ON p.time = date_trunc ('minute', TIMESTAMP '{{snapshot time}}')
 GROUP BY
     l.address,
     l.balance,
-    p.price
+    p.price,
+    creation_trace.tx_hash,
+    gnosis_safe.tx_hash
 ORDER BY
     balance DESC

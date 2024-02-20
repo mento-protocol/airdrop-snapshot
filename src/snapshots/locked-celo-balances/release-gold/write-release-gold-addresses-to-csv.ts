@@ -5,7 +5,7 @@ import type { Address } from 'viem'
 import bold from '../../../helpers/bold.js'
 
 export default async function writeReleaseGoldAddressesToCsv(releaseGoldBeneficiaryMap: {
-  [key: Address]: Address
+  [key: Address]: Address | string
 }) {
   const spinner = ora('Writing ReleaseGold addresses to CSV').start()
   const outputPath = path.resolve('src/snapshots/release-gold-addresses.csv')
@@ -15,7 +15,7 @@ export default async function writeReleaseGoldAddressesToCsv(releaseGoldBenefici
     csvData += Object.keys(releaseGoldBeneficiaryMap)
       .map(
         (address) =>
-          `${address},${releaseGoldBeneficiaryMap[address as Address]}\n`
+          `${address},${releaseGoldBeneficiaryMap[address as Address]}`
       )
       .join('\n')
     await fs.writeFile(outputPath, csvData)

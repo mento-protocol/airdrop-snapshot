@@ -1,18 +1,18 @@
-import type { LockedCeloBalances } from './index.js'
-import type { Snapshot } from '../snapshots.js'
+import { Parser, parse } from 'csv-parse'
 import fs from 'node:fs'
 import path from 'node:path'
-import ora from 'ora'
 import { finished } from 'node:stream/promises'
-import { Parser, parse } from 'csv-parse'
-import generateOutputCsv from './generate-output-csv.js'
-import snapshots from '../snapshots.js'
-import transformDateToFilename from '../../helpers/transform-date-to-filename.js'
+import ora from 'ora'
 import bold from '../../helpers/bold.js'
+import transformDateToFilename from '../../helpers/transform-date-to-filename.js'
+import type { Snapshot } from '../snapshots.js'
+import snapshots from '../snapshots.js'
+import generateOutputCsv from './generate-output-csv.js'
+import type { LockedCeloBalances } from './index.js'
 
 const lockedCeloBalances: LockedCeloBalances = {}
 
-async function addLockedCeloInUsdColumnToSnapshot() {
+export default async function addLockedCeloInUsdColumnToSnapshot() {
   // 1. Iterate over all snapshots
   for (const snapshot of snapshots) {
     const snapshotFile = path.resolve(
@@ -20,7 +20,9 @@ async function addLockedCeloInUsdColumnToSnapshot() {
         snapshot.date
       )}.out.csv`
     )
-    const spinner = ora(`Processing ${path.basename(snapshotFile)}`).start()
+    const spinner = ora(
+      `Checking 'Locked CELO in USD' column on ${path.basename(snapshotFile)}`
+    ).start()
 
     // Skip file if 'Locked Celo in USD' column already exists in the CSV
     const csvData = fs.readFileSync(snapshotFile, 'utf8')
@@ -35,6 +37,9 @@ async function addLockedCeloInUsdColumnToSnapshot() {
 
     // 2. Add 'Locked Celo in USD' column to each snapshot
     try {
+      spinner.text = `Adding 'Locked Celo in USD' column to ${path.basename(
+        snapshotFile
+      )}`
       const parser = getParser(snapshotFile)
       parseFile(parser, snapshot)
       await finished(parser)
@@ -98,5 +103,3 @@ function parseFile(parser: Parser, snapshot: Snapshot) {
     }
   })
 }
-
-await addLockedCeloInUsdColumnToSnapshot()

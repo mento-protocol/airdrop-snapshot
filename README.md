@@ -5,22 +5,22 @@ This repo contains 3 snapshots as per the eligibility criteria provided in [#289
 ## 1. Locked CELO
 
 - **[Final Snapshot - Locked CELO](./final-snapshots/locked-celo-balances.csv)**
-- [Dune Query that was used to export 12 snapshot CSVs](https://dune.com/queries/3164542/5281325)
+- [Dune Query that was used to export monthly snapshot CSVs](https://dune.com/queries/3164542/5281325)
 
 ### Calculation Method Explanation
 
-1. Export 12 snapshot CSVs using the above Dune query to generate a list of addresses that had locked Celo until the snapshot time
-   - **❗ Note that the Dune query results on their own are incorrect as they do not factor in accrued yield from locking over time ❗**
-   - Dune can only index emitted `GoldLocked` and `GoldUnlocked` events, so Dune balances are lower than the actual on-chain balance
-1. Given the list of Dune-generated addresses, fetch the actual `LockedCelo` balance at the snapshot time from a Celo archive node
-1. Sum up actual LockedCelo balances at all 12 snapshots
-1. Calculate the average LockedCelo over all 12 snapshots
+1. Export 16 monthly snapshot CSVs (first snapshot 15.10.2022, last snapshot 15.02.2024) using [the above Dune query](https://dune.com/queries/3164542/5281325) to generate a list of addresses that had locked Celo until the snapshot time
+   - **❗ Note that the balances from the Dune query results on their own are incorrect as they do not factor in accrued yield from locking over time ❗**
+   - Dune only indexes emitted `GoldLocked` and `GoldUnlocked` events, but not emitted yield. Hence, Dune balances are lower than the actual on-chain balance
+1. Given the list of Dune-generated addresses, fetch the actual `LockedCelo` balance at the snapshot time from a Celo archive node via `yarn generate:lockedCeloBalances`
+1. Sum up actual LockedCelo balances at all monthly snapshots
+1. Calculate the average LockedCelo over all monthly snapshots
 1. Filter out addresses with less than $10 USD worth of LockedCelo on average
-1. Map addresses that belong to `ReleaseGold` vesting contracts to their respective beneficiaries
+1. Map addresses that belong (or belonged in case they were self-destructed) to `ReleaseGold` vesting contracts to their respective beneficiaries via `yarn lockedCelo:mapReleaseGold`
 
 ## 2. cStables Volume
 
-The total cStable volume (cUSD + cEUR + cREAL) across a 1-year timeframe from 15.10.2022 until 15.10.2023.
+The total cStable volume (cUSD + cEUR + cREAL) across a the snapshot period from 15.10.2022 until 15.02.2024.
 
 Volume is defined as all cStable transfers **from** an address + all cStable transfers **to** an address.
 

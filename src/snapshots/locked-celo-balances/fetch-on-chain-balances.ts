@@ -11,7 +11,7 @@ import estimateTimeToFetchAllBalancesFromNode from './estimate-time-to-fetch-bal
 import generateOutputCsv from './generate-output-csv.js'
 import getBalancesAtBlockNumber from './get-balances-at-block-number.js'
 import type { LockedCeloBalances } from './index.js'
-import loadDuneSnapshotFile from './load-dune-snapshot-file.js'
+import loadCsvFile from './load-csv-file.js'
 
 /**
  * For every snapshot date:
@@ -36,7 +36,7 @@ export default async function fetchOnChainBalances(snapshotDates: Date[]) {
       continue
     }
 
-    const duneCsv = await loadDuneSnapshotFile(inputFile)
+    const duneCsv = await loadCsvFile(inputFile)
 
     // Sanity check against human error during manual export from Dune into CSV
     checkIfFileNameAndSnapshotTimeColumnMatch(inputFile, duneCsv)
