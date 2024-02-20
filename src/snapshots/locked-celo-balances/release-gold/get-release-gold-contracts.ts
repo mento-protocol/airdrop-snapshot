@@ -10,7 +10,8 @@ import loadCsvFile from '../load-csv-file.js'
 type ReleaseGoldSelfdestructEvent = [
   block_time: string,
   block_number: number,
-  contract_address: `0x${string}`,
+  release_gold_contract: `0x${string}`,
+  beneficiary: `0x${string}`,
   tx_from: `0x${string}`,
   tx_hash: `0x${string}`
 ]
@@ -62,12 +63,14 @@ export default async function getReleaseGoldContracts(
       }
 
       // If the contract self-destructed, we can find the beneficiary from the self-destruct event
-      const hasSelfdestructed = releaseGoldSelfdestructEvents.find(
-        ([, , contractAddress]) => contractAddress === address
-      )
+      const selfDestructedReleaseGoldContract =
+        releaseGoldSelfdestructEvents.find(
+          ([, , releaseGoldContract]) => releaseGoldContract === address
+        )
 
-      if (!!hasSelfdestructed) {
-        releaseGoldBeneficiaryMap[address] = 'self-destructed; look up manually'
+      if (selfDestructedReleaseGoldContract) {
+        releaseGoldBeneficiaryMap[address] =
+          selfDestructedReleaseGoldContract[3]
       }
     }
 
