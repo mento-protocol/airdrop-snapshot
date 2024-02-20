@@ -5,7 +5,7 @@ import type { Address } from 'viem'
 import { ContractFunctionExecutionError, getContract } from 'viem'
 import bold from '../../../helpers/bold.js'
 import getBlockchainClient from '../../../helpers/get-blockchain-client.js'
-import loadCsvFile from '../load-csv-file.js'
+import loadCsvFile from '../../../helpers/load-csv-file.js'
 
 type ReleaseGoldSelfdestructEvent = [
   block_time: string,

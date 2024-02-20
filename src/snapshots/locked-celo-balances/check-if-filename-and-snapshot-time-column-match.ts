@@ -1,5 +1,5 @@
 import path from 'node:path'
-import type { DuneCsv } from './load-csv-file.js'
+import type { DuneCsv } from '../../helpers/load-csv-file.js'
 
 /**
  * Sanity check to guard against accidental typos when exporting a Dune snapshot to CSV and manually naming the file
