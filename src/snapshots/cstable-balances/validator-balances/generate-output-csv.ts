@@ -19,7 +19,7 @@ export default async function generateOutputCsv(
 
   try {
     const csvHeaderIndividual =
-      'Address,Total cStables in USD,cUSD in USD,cEUR in USD,cREAL in USD,cUSD Balance,cEUR Balance,cREAL Balance,Snapshot Date\n'
+      'Address,Total cStables in USD,cUSD in USD,cEUR in USD,cREAL in USD,cUSD Balance,cEUR Balance,cREAL Balance,Snapshot Date'
 
     const csvHeaderTotalAverage =
       'Address,Average Total cStables in USD,Average cUSD in USD,Average cEUR in USD,Average cREAL in USD,Average cUSD Balance,Average cEUR Balance,Average cREAL Balance'

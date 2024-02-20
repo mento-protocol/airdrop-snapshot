@@ -13,16 +13,18 @@ export default async function getIndividualSnapshotFiles(
       .map((file) => snapshotFolder + '/' + file)
 
     // Poor man's unit test
-    if (snapshotFiles.length !== 12) {
+    if (snapshotFiles.length !== 16) {
       throw new Error(
-        'It should be exactly 12 snapshot files as per the eligibility criteria'
+        'It should be exactly 16 snapshot files as per the eligibility criteria'
       )
     }
 
     return snapshotFiles
   } catch (error) {
     throw new Error(
-      `Couldn't read snapshot files from ${path.resolve(snapshotFolder)}`
+      `Couldn't read snapshot files from ${path.resolve(
+        snapshotFolder
+      )}: ${error}`
     )
   }
 }

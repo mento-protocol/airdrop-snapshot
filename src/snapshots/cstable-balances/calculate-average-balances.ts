@@ -1,6 +1,7 @@
+import snapshots from '../snapshots.js'
 import type { CStableBalances } from './types.js'
 
-// Returns the average balances calculated as total balances / 12 snapshots
+// Returns the average balances calculated as total balances / snapshots.length
 export default function calculateAverageBalances(
   balances: CStableBalances
 ): CStableBalances {
@@ -9,13 +10,13 @@ export default function calculateAverageBalances(
       return [
         address,
         {
-          total: balance.total / 12,
-          cUSDinUSD: balance.cUSDinUSD / 12,
-          cEURinUSD: balance.cEURinUSD / 12,
-          cREALinUSD: balance.cREALinUSD / 12,
-          cUSD: balance.cUSD / 12,
-          cEUR: balance.cEUR / 12,
-          cREAL: balance.cREAL / 12,
+          total: balance.total / snapshots.length,
+          cUSDinUSD: balance.cUSDinUSD / snapshots.length,
+          cEURinUSD: balance.cEURinUSD / snapshots.length,
+          cREALinUSD: balance.cREALinUSD / snapshots.length,
+          cUSD: balance.cUSD / snapshots.length,
+          cEUR: balance.cEUR / snapshots.length,
+          cREAL: balance.cREAL / snapshots.length,
         },
       ]
     })
