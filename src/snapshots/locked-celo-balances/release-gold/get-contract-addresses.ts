@@ -2,9 +2,9 @@ import ora from 'ora'
 import path from 'path'
 import type { Address } from 'viem'
 import bold from '../../../helpers/bold.js'
+import loadCsvFile from '../../../helpers/load-csv-file.js'
 import transformDateToFilename from '../../../helpers/transform-date-to-filename.js'
 import snapshots from '../../snapshots.js'
-import loadCsvFile from '../load-csv-file.js'
 
 export default async function getContractAddresses(): Promise<Set<Address>> {
   const spinner = ora(

@@ -3,7 +3,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import ora from 'ora'
 import type { Address } from 'viem'
-import bold from '../../helpers/bold.js'
+import bold from './bold.js'
 
 // Schema of the Dune query export
 export type DuneCsv = [
