@@ -1,11 +1,12 @@
 import { functionSelectors } from 'evmole'
+import { Address } from 'viem'
 import getBlockchainClient from './get-blockchain-client.js'
 
-const UNVERIFIED_CONTRACT_ADDRESS = '0xc97e88e4803775e87701eedf5bdef8f4a9c89876'
+const address = process.argv[2] as Address
 
 const client = getBlockchainClient()
 const bytecode = await client.getBytecode({
-  address: UNVERIFIED_CONTRACT_ADDRESS,
+  address,
 })
 
 const selectors = functionSelectors(bytecode)
