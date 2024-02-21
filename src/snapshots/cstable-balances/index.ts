@@ -1,19 +1,29 @@
 import bold from '../../helpers/bold.js'
+import checkIfFileNameAndSnapshotTimeColumnMatch from '../../helpers/check-if-filename-and-snapshot-time-column-match.js'
+import filterOutValidators from '../../helpers/filter-out-validators.js'
+import getValidators from '../../helpers/get-validators.js'
+import loadCsvFile from '../../helpers/load-csv-file.js'
+import sortByTotal from '../../helpers/sort-by-total.js'
 import calculateAverageBalances from './calculate-average-balances.js'
 import filterOutSmallBalances from './filter-out-small-balances.js'
-import filterOutValidators from '../../helpers/filter-out-validators.js'
 import generateOutputCsv from './generate-output-csv.js'
-import getValidators from '../../helpers/get-validators.js'
 import loadDuneSnapshotFiles from './get-individual-snapshot-files.js'
 import sumUpBalancesFromSnapshots from './sum-up-balances-from-snapshot-csv.js'
-import sortByTotal from '../../helpers/sort-by-total.js'
 import type { CStableBalances } from './types.js'
+
+// Important, otherwise manual process termination will not work via `Ctrl + C`
+process.on('SIGINT', () => {
+  console.log('Received SIGINT. Exiting...')
+  process.exit(1)
+})
 
 // 1. Sum up balances from all individual snapshot files and calculate total balances across all snapshots (not averaged yet)
 const totalBalances: CStableBalances = {}
 for (const file of await loadDuneSnapshotFiles(
-  'src/snapshots/cstable-balances/individual-monthly-snapshots'
+  `${process.cwd()}/src/snapshots/cstable-balances/individual-monthly-snapshots`
 )) {
+  const snapshotCsv = await loadCsvFile(file)
+  checkIfFileNameAndSnapshotTimeColumnMatch(file, snapshotCsv, 9)
   await sumUpBalancesFromSnapshots(file, totalBalances)
 }
 
@@ -57,7 +67,7 @@ console.log(
 )
 console.log(
   `ℹ️  ${bold(
-    Object.keys(balancesExcludingDust).length -
+    Object.keys(balancesSortedByTotal).length -
       Object.keys(balancesExcludingValidators).length +
       ' validator and validator group addresses removed (will be calculated separately)'
   )}`

@@ -11,6 +11,8 @@ export default function calculateAverageBalances(
         address,
         {
           total: balance.total / snapshots.length,
+          contract: balance.contract,
+          beneficiary: balance.beneficiary,
           cUSDinUSD: balance.cUSDinUSD / snapshots.length,
           cEURinUSD: balance.cEURinUSD / snapshots.length,
           cREALinUSD: balance.cREALinUSD / snapshots.length,

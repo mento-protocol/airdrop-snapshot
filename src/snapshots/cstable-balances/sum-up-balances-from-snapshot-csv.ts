@@ -25,11 +25,12 @@ export default async function sumUpBalancesFromSnapshotCsv(
           }
 
           switch (context.column) {
+            case 'Contract':
             case 'Address':
               return value
 
-            case 'Snapshot Date':
-              return new Date(value.replace('12-00', '12:00 UTC'))
+            case 'Snapshot Time':
+              return new Date(value)
 
             default:
               return Number(value)
@@ -45,6 +46,7 @@ export default async function sumUpBalancesFromSnapshotCsv(
         'cUSD in USD': number
         'cEUR in USD': number
         'cREAL in USD': number
+        Contract: string
         'cUSD Balance': number
         'cEUR Balance': number
         'cREAL Balance': number
@@ -57,6 +59,8 @@ export default async function sumUpBalancesFromSnapshotCsv(
         if (!balances[address]) {
           balances[address] = {
             total: 0,
+            contract: '',
+            beneficiary: '',
             cUSDinUSD: 0,
             cEURinUSD: 0,
             cREALinUSD: 0,
@@ -68,6 +72,8 @@ export default async function sumUpBalancesFromSnapshotCsv(
 
         // Add snapshot balances
         balances[address].total += row['Total cStables in USD']
+        balances[address].contract = row.Contract
+        balances[address].beneficiary = ''
         balances[address].cUSDinUSD += row['cUSD in USD']
         balances[address].cEURinUSD += row['cEUR in USD']
         balances[address].cREALinUSD += row['cREAL in USD']

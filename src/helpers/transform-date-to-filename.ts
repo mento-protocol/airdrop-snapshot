@@ -1,5 +1,5 @@
 /**
- * Transforms a date to a string with schema: '2023-10-15 12-00'
+ * Transforms a date to a string with schema: '2023-10-15 12pm'
  * Necessary because some file systems don't allow colons ":" in file names
  */
 export default function transformDateToFilename(isoDate: Date) {
@@ -7,5 +7,5 @@ export default function transformDateToFilename(isoDate: Date) {
     .toISOString() // ISO String Format: '2023-10-15T12:00:00.000Z'
     .slice(0, 16)
     .replace('T', ' ')
-    .replace(':', '-')
+    .replace(':00', 'pm')
 }
