@@ -85,7 +85,7 @@ SELECT
                 -- (annoyingly, some contracts have more than 1 name which is why this complicated merging of contract names into 1 column is required)
                 WHEN array_join (array_agg (contract.name), '/') != '' THEN array_join (array_agg (contract.name), '/')
                 -- else tag it as 'unverified'
-                ELSE 'Contract'
+                ELSE 'unverified'
             END
         )
         ELSE NULL
