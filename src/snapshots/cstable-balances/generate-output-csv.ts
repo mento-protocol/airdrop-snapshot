@@ -13,14 +13,23 @@ export default async function generateOutputCsv(
   const spinner = ora(`Writing total average balances to ${outputPath}`).start()
   try {
     let csvData =
-      'Address,Average Total cStables in USD,Average cUSD in USD,Average cEUR in USD,Average cREAL in USD,Average cUSD Balance,Average cEUR Balance,Average cREAL Balance\n'
+      'Address,Average Total cStables in USD,Contract,Beneficiary,Average cUSD in USD,Average cEUR in USD,Average cREAL in USD,Average cUSD Balance,Average cEUR Balance,Average cREAL Balance\n'
 
     csvData += Object.keys(balances)
       .map((address) => {
-        const { total, cUSDinUSD, cEURinUSD, cREALinUSD, cUSD, cEUR, cREAL } =
-          balances[address as Address]
+        const {
+          total,
+          contract,
+          beneficiary,
+          cUSDinUSD,
+          cEURinUSD,
+          cREALinUSD,
+          cUSD,
+          cEUR,
+          cREAL,
+        } = balances[address as Address]
 
-        return `${address},${total},${cUSDinUSD},${cEURinUSD},${cREALinUSD},${cUSD},${cEUR},${cREAL}`
+        return `${address},${total},${contract},${beneficiary},${cUSDinUSD},${cEURinUSD},${cREALinUSD},${cUSD},${cEUR},${cREAL}`
       })
       .join('\n')
 

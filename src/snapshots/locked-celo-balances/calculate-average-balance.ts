@@ -1,4 +1,4 @@
-import type { LockedCeloBalances } from './index.js'
+import { snapshotDates, type LockedCeloBalances } from './index.js'
 
 /**
  * Helper function that calculates the average balance
@@ -10,7 +10,10 @@ export default function calculateAverageBalance(
     Object.entries(balances).map(([address, bal]) => {
       return [
         address,
-        { total: bal.total / 12, totalInUsd: bal.totalInUsd / 12 },
+        {
+          total: bal.total / snapshotDates.length,
+          totalInUsd: bal.totalInUsd / snapshotDates.length,
+        },
       ]
     })
   )

@@ -7,6 +7,8 @@ export type CStableBalances = {
 
 export type CStableBalance = {
   total: number
+  contract: string
+  beneficiary: string
   cUSDinUSD: number
   cEURinUSD: number
   cREALinUSD: number

@@ -31,6 +31,7 @@ const cREAL = getContract({
 
 export default async function getAddressBalance(
   address: Address,
+  type: 'validators' | 'validator-groups',
   blockNumber: bigint,
   prices: Prices
 ): Promise<CStableBalance> {
@@ -57,6 +58,8 @@ export default async function getAddressBalance(
 
   const balance: CStableBalance = {
     total,
+    contract: type === 'validators' ? 'Validator' : 'Validator Group',
+    beneficiary: '',
     cUSD: cUSDBalance / 1e18,
     cUSDinUSD,
     cEUR: cEURBalance / 1e18,

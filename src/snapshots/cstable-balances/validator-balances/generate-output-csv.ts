@@ -19,10 +19,10 @@ export default async function generateOutputCsv(
 
   try {
     const csvHeaderIndividual =
-      'Address,Total cStables in USD,cUSD in USD,cEUR in USD,cREAL in USD,cUSD Balance,cEUR Balance,cREAL Balance,Snapshot Date\n'
+      'Address,Total cStables in USD,Contract,Beneficiary,cUSD in USD,cEUR in USD,cREAL in USD,cUSD Balance,cEUR Balance,cREAL Balance,Snapshot Date'
 
     const csvHeaderTotalAverage =
-      'Address,Average Total cStables in USD,Average cUSD in USD,Average cEUR in USD,Average cREAL in USD,Average cUSD Balance,Average cEUR Balance,Average cREAL Balance'
+      'Address,Average Total cStables in USD,Contract,Beneficiary,Average cUSD in USD,Average cEUR in USD,Average cREAL in USD,Average cUSD Balance,Average cEUR Balance,Average cREAL Balance'
 
     const header =
       type === 'individual' ? csvHeaderIndividual : csvHeaderTotalAverage
@@ -30,15 +30,23 @@ export default async function generateOutputCsv(
 
     csvData += Object.keys(balances)
       .map((address) => {
-        const { cUSDinUSD, cEURinUSD, cREALinUSD, cUSD, cEUR, cREAL } =
-          balances[address as Address]
+        const {
+          contract,
+          beneficiary,
+          cUSDinUSD,
+          cEURinUSD,
+          cREALinUSD,
+          cUSD,
+          cEUR,
+          cREAL,
+        } = balances[address as Address]
         const totalCstablesInUsd = cUSDinUSD + cEURinUSD + cREALinUSD
 
-        const individual = `${address},${totalCstablesInUsd},${cUSDinUSD},${cEURinUSD},${cREALinUSD},${cUSD},${cEUR},${cREAL},${fileName.replace(
-          '12-00.csv',
+        const individual = `${address},${totalCstablesInUsd},${contract},${beneficiary},${cUSDinUSD},${cEURinUSD},${cREALinUSD},${cUSD},${cEUR},${cREAL},${fileName.replace(
+          '12pm.csv',
           ''
         )}`
-        const total = `${address},${totalCstablesInUsd},${cUSDinUSD},${cEURinUSD},${cREALinUSD},${cUSD},${cEUR},${cREAL}`
+        const total = `${address},${totalCstablesInUsd},${contract},${beneficiary},${cUSDinUSD},${cEURinUSD},${cREALinUSD},${cUSD},${cEUR},${cREAL}`
 
         return type === 'individual' ? individual : total
       })

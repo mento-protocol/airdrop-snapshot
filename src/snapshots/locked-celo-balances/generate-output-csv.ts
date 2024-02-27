@@ -21,7 +21,7 @@ export default async function generateOutputCsv(
     let csvData =
       type === 'individual'
         ? 'Address,Locked Celo Balance,Locked Celo in USD,Snapshot Date\n'
-        : 'Address,Average Locked Celo Balance,Average Locked Celo in USD\n'
+        : 'Address,Average Locked Celo Balance,Average Locked Celo in USD,Contract,Beneficiary\n'
 
     csvData += Object.keys(balances)
       .map((address) =>
@@ -31,6 +31,8 @@ export default async function generateOutputCsv(
             },${path.basename(outputPath).replace('.out.csv', '')}`
           : `${address},${balances[address as Address].total},${
               balances[address as Address].totalInUsd
+            },${balances[address as Address].contract},${
+              balances[address as Address].beneficiary
             }`
       )
       .join('\n')

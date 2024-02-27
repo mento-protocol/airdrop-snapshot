@@ -31,7 +31,16 @@ export default async function getBalancesAtBlockNumber(
 
       const address = addresses[i]
       const balance = await getLockedCeloBalanceForBlock(address, blockNumber)
+
+      if (!balances[address]) {
+        balances[address] = {
+          total: 0,
+          totalInUsd: 0,
+        }
+      }
+
       balances[address].total = Number(balance)
+
       if (process.env.DEBUG) {
         console.log(
           Number(formatEther(balance)).toLocaleString('en-us', {

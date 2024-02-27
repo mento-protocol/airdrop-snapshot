@@ -15,6 +15,8 @@
     "generate:cstableBalances:merge": "npx tsx src/snapshots/cstable-balances/merge-all-balances.ts",
     "generate:cstableVolume": "npx tsx src/snapshots/cstable-volume/index.ts",
     "generate:lockedCeloBalances": "npx tsx src/snapshots/locked-celo-balances/index.ts",
+    "lockedCelo:mapReleaseGold": "npx tsx src/snapshots/locked-celo-balances/release-gold/index.ts",
+    "analyzeUnverifiedContract": "npx tsx src/helpers/get-signatures-from-bytecode.ts",
     "todo": "leasot '**/*.ts' '**/*.sql'  --ignore 'node_modules/**/*'"
   },
   "author": "",
@@ -24,6 +26,7 @@
     "@types/node": "^20.8.9",
     "csv-parse": "^5.5.2",
     "env-var": "^7.4.1",
+    "evmole": "^0.1.2",
     "leasot": "^13.3.0",
     "ora": "^7.0.1",
     "typescript": "^5.2.2",

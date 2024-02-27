@@ -8,7 +8,8 @@ import getAddressBalance from './get-address-balance.js'
 
 export default async function getAllBalancesFor(
   addresses: Address[],
-  snapshot: Snapshot
+  snapshot: Snapshot,
+  type: 'validators' | 'validator-groups'
 ): Promise<CStableBalances> {
   const blockNumber = await getBlockNumberForDate(snapshot.date)
   const spinner = ora(
@@ -25,6 +26,7 @@ export default async function getAllBalancesFor(
       spinner.suffixText = `${(i + 1).toString()} / ${addresses.length}`
       balances[address] = await getAddressBalance(
         address,
+        type,
         blockNumber,
         snapshot.pricesInUsd
       )

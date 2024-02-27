@@ -2,16 +2,16 @@ import ora from 'ora'
 import path from 'path'
 import type { Address } from 'viem'
 import bold from '../../helpers/bold.js'
+import checkIfFileNameAndSnapshotTimeColumnMatch from '../../helpers/check-if-filename-and-snapshot-time-column-match.js'
 import fileExists from '../../helpers/file-exists.js'
 import getBlockNumberForDate from '../../helpers/get-block-number-for-date.js'
+import loadCsvFile from '../../helpers/load-csv-file.js'
 import sortByTotal from '../../helpers/sort-by-total.js'
 import transformDateToFilename from '../../helpers/transform-date-to-filename.js'
-import checkIfFileNameAndSnapshotTimeColumnMatch from './check-if-filename-and-snapshot-time-column-match.js'
 import estimateTimeToFetchAllBalancesFromNode from './estimate-time-to-fetch-balances.js'
 import generateOutputCsv from './generate-output-csv.js'
 import getBalancesAtBlockNumber from './get-balances-at-block-number.js'
 import type { LockedCeloBalances } from './index.js'
-import loadDuneSnapshotFile from './load-dune-snapshot-file.js'
 
 /**
  * For every snapshot date:
@@ -36,10 +36,10 @@ export default async function fetchOnChainBalances(snapshotDates: Date[]) {
       continue
     }
 
-    const duneCsv = await loadDuneSnapshotFile(inputFile)
+    const duneCsv = await loadCsvFile(inputFile)
 
     // Sanity check against human error during manual export from Dune into CSV
-    checkIfFileNameAndSnapshotTimeColumnMatch(inputFile, duneCsv)
+    checkIfFileNameAndSnapshotTimeColumnMatch(inputFile, duneCsv, 4)
 
     const addresses = duneCsv
       // remove header row

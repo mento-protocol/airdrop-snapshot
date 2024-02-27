@@ -3,6 +3,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { finished } from 'node:stream/promises'
 import type { Address } from 'viem'
+import loadCsvFile from '../../helpers/load-csv-file.js'
 import sortByTotal from '../../helpers/sort-by-total.js'
 import generateOutputCsv from './generate-output-csv.js'
 import type { CStableBalances } from './types.js'
@@ -10,6 +11,11 @@ import type { CStableBalances } from './types.js'
 const mergedBalances: CStableBalances = {}
 
 async function mergeAllBalances() {
+  // Load releaseGold addresses to check snapshot addresses against
+  const releaseGoldCsv = await loadCsvFile<
+    Array<[releaseGoldAddress: Address, beneficiaryAddress: Address]>
+  >(`${process.cwd()}/src/snapshots/release-gold-addresses.csv`)
+
   const finalOutputSnapshotFile: string = path.resolve(
     'final-snapshots/cstable-balances.csv'
   )
@@ -23,15 +29,15 @@ async function mergeAllBalances() {
     'src/snapshots/cstable-balances/validator-balances/cstable-balances-for-validator-groups.csv'
   )
   const parserOriginalSnapshot = getParser(originalBalancesSnapshot)
-  parseFile(parserOriginalSnapshot)
+  parseFile(parserOriginalSnapshot, releaseGoldCsv)
   await finished(parserOriginalSnapshot)
 
   const parserValidatorSnapshot = getParser(validatorBalancesSnapshot)
-  parseFile(parserValidatorSnapshot)
+  parseFile(parserValidatorSnapshot, releaseGoldCsv)
   await finished(parserValidatorSnapshot)
 
   const parserValidatorGroupSnapshot = getParser(validatorGroupBalancesSnapshot)
-  parseFile(parserValidatorGroupSnapshot)
+  parseFile(parserValidatorGroupSnapshot, releaseGoldCsv)
   await finished(parserValidatorGroupSnapshot)
 
   const sortedMergedBalances = sortByTotal(mergedBalances) as CStableBalances
@@ -49,10 +55,12 @@ function getParser(filePath: string) {
 
         switch (context.column) {
           case 'Address':
+          case 'Beneficiary':
+          case 'Contract':
             return value
 
-          case 'Snapshot Date':
-            return new Date(value.replace('12-00', '12:00 UTC'))
+          case 'Snapshot Time':
+            return new Date(value.replace('12pm', '12:00 UTC'))
 
           default:
             return Number(value)
@@ -62,10 +70,12 @@ function getParser(filePath: string) {
   )
 }
 
-function parseFile(parser: Parser) {
+function parseFile(parser: Parser, releaseGoldCsv: Array<[Address, Address]>) {
   parser.on('readable', function () {
     let row: {
       Address: Address
+      Contract: string
+      Beneficiary: string
       'Average Total cStables in USD': number
       'Average cUSD in USD': number
       'Average cEUR in USD': number
@@ -82,6 +92,8 @@ function parseFile(parser: Parser) {
       if (!mergedBalances[address]) {
         mergedBalances[address] = {
           total: 0,
+          contract: '',
+          beneficiary: '',
           cUSDinUSD: 0,
           cEURinUSD: 0,
           cREALinUSD: 0,
@@ -91,7 +103,17 @@ function parseFile(parser: Parser) {
         }
       }
 
+      const isReleaseGoldAddress = releaseGoldCsv.find(
+        ([releaseGoldAddress]) => {
+          return releaseGoldAddress === address
+        }
+      )
+
       mergedBalances[address].total = row['Average Total cStables in USD']
+      mergedBalances[address].contract = row['Contract']
+      mergedBalances[address].beneficiary = isReleaseGoldAddress
+        ? isReleaseGoldAddress[1]
+        : ''
       mergedBalances[address].cUSDinUSD = row['Average cUSD in USD']
       mergedBalances[address].cEURinUSD = row['Average cEUR in USD']
       mergedBalances[address].cREALinUSD = row['Average cREAL in USD']

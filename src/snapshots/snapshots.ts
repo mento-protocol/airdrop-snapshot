@@ -120,6 +120,42 @@ export const snapshotDates: Snapshot[] = [
       celo: 0.420397,
     },
   },
+  {
+    date: new Date('2023-11-15 12:00 UTC'),
+    pricesInUsd: {
+      cUSD: 0.999596,
+      cEUR: 1.084247,
+      cREAL: 0.2056700075,
+      celo: 0.554847,
+    },
+  },
+  {
+    date: new Date('2023-12-15 12:00 UTC'),
+    pricesInUsd: {
+      cUSD: 0.999658,
+      cEUR: 1.095831,
+      cREAL: 0.20273413282608696,
+      celo: 0.589114,
+    },
+  },
+  {
+    date: new Date('2024-01-15 12:00 UTC'),
+    pricesInUsd: {
+      cUSD: 1.000097,
+      cEUR: 1.091922,
+      cREAL: 0.20571925123595503,
+      celo: 0.766045,
+    },
+  },
+  {
+    date: new Date('2024-02-15 12:00 UTC'),
+    pricesInUsd: {
+      cUSD: 1.002395,
+      cEUR: 1.074036,
+      cREAL: 0.20119799760000004,
+      celo: 0.764104,
+    },
+  },
 ]
 
 export default snapshotDates

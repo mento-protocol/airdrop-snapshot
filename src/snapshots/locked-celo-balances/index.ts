@@ -2,6 +2,8 @@ import type { Address } from 'viem'
 import bold from '../../helpers/bold.js'
 import sortByTotal from '../../helpers/sort-by-total.js'
 import transformDateToFilename from '../../helpers/transform-date-to-filename.js'
+import snapshots from '../snapshots.js'
+import addLockedCeloInUsdColumnToSnapshot from './add-usd-prices-to-snapshot.js'
 import calculateAverageBalance from './calculate-average-balance.js'
 import fetchOnChainBalancesFor from './fetch-on-chain-balances.js'
 import filterOutSmallBalances from './filter-out-small-balances.js'
@@ -12,31 +14,24 @@ export type LockedCeloBalances = {
   [address: Address]: {
     total: number
     totalInUsd: number
+    contract?: string
+    beneficiary?: string
   }
 }
 
 const totalBalances: LockedCeloBalances = {}
 
 // 1. Define snapshot dates
-const snapshotDates = [
-  new Date('2022-11-15 12:00 UTC'),
-  new Date('2022-12-15 12:00 UTC'),
-  new Date('2023-01-15 12:00 UTC'),
-  new Date('2023-02-15 12:00 UTC'),
-  new Date('2023-03-15 12:00 UTC'),
-  new Date('2023-04-15 12:00 UTC'),
-  new Date('2023-05-15 12:00 UTC'),
-  new Date('2023-06-15 12:00 UTC'),
-  new Date('2023-07-15 12:00 UTC'),
-  new Date('2023-08-15 12:00 UTC'),
-  new Date('2023-09-15 12:00 UTC'),
-  new Date('2023-10-15 12:00 UTC'),
-]
+export const snapshotDates = snapshots.map((s) => s.date)
 
 // 2. Iterate over all Dune snapshot files to extract addresses, then fetch real balances from archive node for each snapshot
 await fetchOnChainBalancesFor(snapshotDates)
 
-// 3. Calculate average balances across all snapshots
+// 3. Add "Locked Celo in USD" column
+await addLockedCeloInUsdColumnToSnapshot()
+console.log('') // CLI formatting
+
+// 4. Calculate average balances across all snapshots
 for (const date of snapshotDates) {
   const inputFileName = `on-chain-output-snapshots/${transformDateToFilename(
     date
@@ -52,6 +47,7 @@ const sortedAverageBalances = sortByTotal(
   averageBalancesExclDust
 ) as LockedCeloBalances
 
+// 5. Generate output CSV
 await generateOutputCsv(
   sortedAverageBalances,
   'src/snapshots/locked-celo-balances/total-average-locked-celo-across-all-snapshots.csv',
