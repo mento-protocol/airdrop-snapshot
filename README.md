@@ -1,6 +1,7 @@
 # Airgrab Snapshots
 
-This repo contains 3 snapshots as per the eligibility criteria provided in [#289](https://github.com/mento-protocol/mento-general/issues/289)
+This repo contains 3 snapshots as per the eligibility criteria provided in [#289](https://github.com/mento-protocol/mento-general/issues/289). 
+As well as the final airgrab amounts in `airdrop_amounts_per_address.csv` calculated from these snapshots in this [notebook](https://colab.research.google.com/drive/17sGsXPjZDjTOlajpemzDTG40_3igetdd?usp=sharing).
 
 ## 1. Locked CELO
 
