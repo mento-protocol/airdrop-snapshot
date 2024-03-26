@@ -1,8 +1,9 @@
-# Airgrab Snapshots
+# Airdrop Snapshots
 
 This repo contains
+
 - 3 individual snapshots as defined by the [eligibility criteria](https://github.com/mento-protocol/mento-general/issues/289)
-- The [final airdrop allocation](https://github.com/mento-protocol/airgrab-snapshot/blob/main/final-snapshots/airdrop_amounts_per_address.csv) calculated from these snapshots in this [notebook](https://colab.research.google.com/drive/17sGsXPjZDjTOlajpemzDTG40_3igetdd?usp=sharing).
+- The [final airdrop allocation](https://github.com/mento-protocol/airdrop-snapshot/blob/main/final-snapshots/airdrop-amounts-per-address.csv) calculated from these snapshots in this [notebook](https://colab.research.google.com/drive/17sGsXPjZDjTOlajpemzDTG40_3igetdd?usp=sharing).
 
 ## 1. Locked CELO
 
@@ -70,7 +71,7 @@ The average cStable balance (cUSD/cEUR/cREAL) denominated in USD across 16 month
 - On the day of the last snapshot, cEUR had an exchange rate of 1.06 USD, so Alice's 100 cEUR were valued at $106 USD
 - Her total average cStable balance across all 16 snapshots would be
   - ($70 (cUSD balance) + $106 (cEUR balance)) / 16 snapshots = **$11 average combined cStable balance**
-  - Alice would be eligible for the airgrab because she has more than $10 in average cStable value across all snapshots
+  - Alice would be eligible for the airdrop because she has more than $10 in average cStable value across all snapshots
 
 ### Calculation Method Explanation
 

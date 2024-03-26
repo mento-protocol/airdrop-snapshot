@@ -93,7 +93,7 @@ WITH
         WHERE
             -- Min. 10 cUSD to filter out low balances & dust.
             -- This is not to discriminate against smaller holders but rather avoid a situation where 
-            -- gas costs for claiming the airgrab would be higher than the actual airgrab amount
+            -- gas costs for claiming the airdrop would be higher than the actual airdrop amount
             COALESCE(TRY ((inflow.total - outflow.total) / 1e18), 0) > 10
         ORDER BY
             balance DESC
@@ -164,7 +164,7 @@ WITH
         WHERE
             -- Min. 10 cEUR to filter out low balances & dust.
             -- This is not to discriminate against smaller holders but rather avoid a situation where 
-            -- gas costs for claiming the airgrab would be higher than the actual airgrab amount
+            -- gas costs for claiming the airdrop would be higher than the actual airdrop amount
             COALESCE(TRY ((inflow.total - outflow.total) / 1e18), 0) > 10 -- min. 10 cEUR to filter out low balances & dust
         ORDER BY
             balance DESC
