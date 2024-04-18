@@ -104,7 +104,7 @@ The average cStable balance (cUSD/cEUR/cREAL) denominated in USD across 16 month
 
 ## 4. stCELO Balances
 
-The average stCELO balance across 16 monthly snapshots from 15.11.2022 through 15.02.2024.
+The average stCELO balance, denominated in USD, across 16 monthly snapshots from 15.11.2022 through 15.02.2024.
 
 - **[Final Snapshot - cStable Balances](./final-snapshots/stcelo-balances.csv)**
 - [Dune Query that was used to export 16 snapshot CSVs at different dates](https://dune.com/queries/3638694/6127529)
@@ -112,4 +112,8 @@ The average stCELO balance across 16 monthly snapshots from 15.11.2022 through 1
 ### Calculation Method Explanation
 
 1. Take 16 monthly snapshots, 1 per month from November 15, 2022, to February 15, 2024, of addresses that held stCELO on the date of the snapshot
+1. Filter out addresses with less than 10 stCELO at the time of snapshot
+1. Convert the stCELO balances into USD using the CELO/USD exchange rate at the time of the respective monthly snapshot
+   - NOTE: We know stCELO<>CELO isn't 1:1 but there were no stCELO price feeds available on Dune and the deviation should be small enough for 1:1 to be ok for our purposes
 1. Calculate the average balance over all monthly snapshots
+1. Filter out addresses with less than $10 USD worth of stCELO on average
