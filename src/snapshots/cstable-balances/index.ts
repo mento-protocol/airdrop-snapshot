@@ -23,7 +23,7 @@ for (const file of await getIndividualSnapshotFiles(
   `${process.cwd()}/src/snapshots/cstable-balances/individual-monthly-snapshots`
 )) {
   const snapshotCsv = await loadCsvFile(file)
-  checkIfFileNameAndSnapshotTimeColumnMatch(file, snapshotCsv, 9)
+  checkIfFileNameAndSnapshotTimeColumnMatch(file, snapshotCsv, 10)
   await sumUpBalancesFromSnapshots(file, totalBalances)
 }
 

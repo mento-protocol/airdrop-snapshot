@@ -94,7 +94,7 @@ The average cStable balance (cUSD/cEUR/cREAL) denominated in USD across 16 month
    1. `./src/snapshots/cstable-balances/validator-balances/monthly-snapshots-validator-groups`
 1. Export monthly snapshot CSVs via this [Dune Query](https://dune.com/queries/3144937/5269961), one for every snapshot date
    - First snapshot: 15.11.2022 12:00 pm UTC
-   - Last snapshot: 15.10.2023 12:00 pm UTC
+   - Last snapshot: 15.02.2024 12:00 pm UTC
 1. Name the CSVs according to schema `2022-11-15 12pm.csv` and place them into the `./src/snapshots/cstable-balances/individual-monthly-snapshots` folder
 1. Run `npm run generate:cstableBalances` which should create or update `./src/snapshots/cstable-balances/total-average-across-all-snapshots-excluding-validators.csv`
 1. Run `npm run generate:cstableBalancesForValidators` which should fetch validator balances from an archive node and create monthly snapshot CSVs in `./src/snapshots/cstable-balances/validator/balances/monthly-snapshots-validators/`
