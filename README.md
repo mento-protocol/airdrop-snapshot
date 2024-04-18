@@ -2,7 +2,7 @@
 
 This repo contains
 
-- 3 individual snapshots as defined by the [eligibility criteria](https://github.com/mento-protocol/mento-general/issues/289)
+- 4 individual snapshots as defined by the [eligibility criteria](https://github.com/mento-protocol/mento-general/issues/289)
 - The [final airdrop allocation](https://github.com/mento-protocol/airdrop-snapshot/blob/main/final-snapshots/airdrop-amounts-per-address.csv) calculated from these snapshots in this [notebook](https://colab.research.google.com/drive/17sGsXPjZDjTOlajpemzDTG40_3igetdd?usp=sharing).
 
 ## 1. Locked CELO
@@ -60,7 +60,7 @@ Volume is defined as all cStable transfers **from** an address + all cStable tra
 The average cStable balance (cUSD/cEUR/cREAL) denominated in USD across 16 monthly snapshots from 15.11.2022 through 15.02.2024.
 
 - **[Final Snapshot - cStable Balances](./final-snapshots/cstable-balances.csv)**
-- [Dune Query that was used to export 12 snapshot CSVs at different dates](https://dune.com/queries/3144937/5269961)
+- [Dune Query that was used to export 16 snapshot CSVs at different dates](https://dune.com/queries/3144937/5269961)
 
 ### Example
 
@@ -101,3 +101,15 @@ The average cStable balance (cUSD/cEUR/cREAL) denominated in USD across 16 month
 1. Run `npm run generate:cstableBalancesForValidatorGroups` which should fetch validator group balances from an archive node and create monthly snapshot CSVs in `./src/snapshots/cstable-balances/validator/balances/monthly-snapshots-validator-groups/`
 1. Run `npm run generate:cstableBalances:merge` which should merge the results of the prior 3 commands into `./final-snapshots/cstable-balances.csv`
 1. Check the git diffs to see you get the same results
+
+## 4. stCELO Balances
+
+The average stCELO balance across 16 monthly snapshots from 15.11.2022 through 15.02.2024.
+
+- **[Final Snapshot - cStable Balances](./final-snapshots/stcelo-balances.csv)**
+- [Dune Query that was used to export 16 snapshot CSVs at different dates](https://dune.com/queries/3638694/6127529)
+
+### Calculation Method Explanation
+
+1. Take 16 monthly snapshots, 1 per month from November 15, 2022, to February 15, 2024, of addresses that held stCELO on the date of the snapshot
+1. Calculate the average balance over all monthly snapshots

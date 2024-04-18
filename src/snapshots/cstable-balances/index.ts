@@ -1,13 +1,13 @@
 import bold from '../../helpers/bold.js'
 import checkIfFileNameAndSnapshotTimeColumnMatch from '../../helpers/check-if-filename-and-snapshot-time-column-match.js'
 import filterOutValidators from '../../helpers/filter-out-validators.js'
+import getIndividualSnapshotFiles from '../../helpers/get-individual-snapshot-files.js'
 import getValidators from '../../helpers/get-validators.js'
 import loadCsvFile from '../../helpers/load-csv-file.js'
 import sortByTotal from '../../helpers/sort-by-total.js'
 import calculateAverageBalances from './calculate-average-balances.js'
 import filterOutSmallBalances from './filter-out-small-balances.js'
 import generateOutputCsv from './generate-output-csv.js'
-import loadDuneSnapshotFiles from './get-individual-snapshot-files.js'
 import sumUpBalancesFromSnapshots from './sum-up-balances-from-snapshot-csv.js'
 import type { CStableBalances } from './types.js'
 
@@ -19,7 +19,7 @@ process.on('SIGINT', () => {
 
 // 1. Sum up balances from all individual snapshot files and calculate total balances across all snapshots (not averaged yet)
 const totalBalances: CStableBalances = {}
-for (const file of await loadDuneSnapshotFiles(
+for (const file of await getIndividualSnapshotFiles(
   `${process.cwd()}/src/snapshots/cstable-balances/individual-monthly-snapshots`
 )) {
   const snapshotCsv = await loadCsvFile(file)

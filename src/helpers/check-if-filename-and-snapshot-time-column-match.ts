@@ -12,6 +12,13 @@ export default function checkIfFileNameAndSnapshotTimeColumnMatch(
   const timestampColumnOfSecondRow = csv.map(
     (row) => row[timestampColumnIndex]
   )[1]
+
+  if (!timestampColumnOfSecondRow) {
+    throw new Error(
+      `Didn't find timestamp in column ${timestampColumnIndex}. Make sure you're using the correct index.`
+    )
+  }
+
   const fileNameNormalized = path.basename(filePath).slice(0, 13)
   const timestampNormalized = timestampColumnOfSecondRow.slice(0, 13)
 
