@@ -43,6 +43,9 @@ WITH
   stCELO AS (
     SELECT
       inflow.address AS address,
+      -- The inner COALESCE is to handle the case where there are no outflows for an address.
+      -- i.e. the address could have received stCELO but never transferred any, which would make
+      -- `outflow.total` NULL and cause the subtraction to fail. (because 100 - NULL = NULL)
       COALESCE(
         TRY(
           (
