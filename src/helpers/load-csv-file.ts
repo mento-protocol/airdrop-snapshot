@@ -20,7 +20,9 @@ export type DuneCsv = [
 export default async function loadCsvFile<T extends Array<unknown> = DuneCsv>(
   filePath: string
 ): Promise<T> {
-  const spinner = ora(`Loading CSV file ${bold(filePath)}...`).start()
+  const spinner = ora(
+    `Loading CSV file ${bold(path.basename(filePath))}...`
+  ).start()
 
   try {
     const fullPath = new URL(filePath, import.meta.url)

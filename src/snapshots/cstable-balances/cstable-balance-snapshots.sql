@@ -94,7 +94,7 @@ WITH
             -- Min. 10 cUSD to filter out low balances & dust.
             -- This is not to discriminate against smaller holders but rather avoid a situation where 
             -- gas costs for claiming the airdrop would be higher than the actual airdrop amount
-            COALESCE(TRY ((inflow.total - outflow.total) / 1e18), 0) > 10
+            COALESCE(TRY ((COALESCE(inflow.total, 0) - COALESCE(outflow.total, 0)) / 1e18), 0) > 10
         ORDER BY
             balance DESC
     ),
@@ -165,7 +165,7 @@ WITH
             -- Min. 10 cEUR to filter out low balances & dust.
             -- This is not to discriminate against smaller holders but rather avoid a situation where 
             -- gas costs for claiming the airdrop would be higher than the actual airdrop amount
-            COALESCE(TRY ((inflow.total - outflow.total) / 1e18), 0) > 10 -- min. 10 cEUR to filter out low balances & dust
+            COALESCE(TRY ((COALESCE(inflow.total, 0) - COALESCE(outflow.total, 0)) / 1e18), 0) > 10 -- min. 10 cEUR to filter out low balances & dust
         ORDER BY
             balance DESC
     ),
@@ -242,7 +242,7 @@ WITH
             LEFT OUTER JOIN cREAL_outflow as outflow ON inflow.address = outflow.address
             LEFT OUTER JOIN BRL_price p ON date_trunc ('day', p."date") = DATE (TIMESTAMP '{{snapshot time}}')
         WHERE
-            COALESCE(TRY ((inflow.total - outflow.total) / 1e18), 0) > 10
+            COALESCE(TRY ((COALESCE(inflow.total, 0) - COALESCE(outflow.total, 0)) / 1e18), 0) > 10
         ORDER BY
             balance DESC
     )
@@ -253,12 +253,12 @@ WITH
     --
 SELECT
     -- For exporting to CSV from Dune, flip this on and comment out the next column get a cleaner address column in the export CSV
-    -- COALESCE(cUSD.address, cEUR.address, cREAL.address) as Address,
+    COALESCE(cUSD.address, cEUR.address, cREAL.address) as Address,
     '<a href=https://celoscan.io/address/' || cast(
         COALESCE(cUSD.address, cEUR.address, cREAL.address) as varchar
     ) || ' target=_blank>' || cast(
         COALESCE(cUSD.address, cEUR.address, cREAL.address) as varchar
-    ) || '</a>' as Address,
+    ) || '</a>' as CeloScan,
     COALESCE(cUSD.balance * cUSD.price, 0) + COALESCE(cEUR.balance * cEUR.price, 0) + COALESCE(cREAL.balance * cREAL.price, 0) "Total cStables in USD",
     COALESCE(cUSD.balance * cUSD.price, 0) "cUSD in USD",
     COALESCE(cEUR.balance * cEUR.price, 0) "cEUR in USD",
@@ -272,16 +272,17 @@ SELECT
                 WHEN gnosis_safe.tx_hash IS NOT NULL THEN 'Gnosis Safe'
                 -- else if Dune has a contract name (available for many verified contracts), use the contract name.
                 -- (annoyingly, some contracts have more than 1 name which is why this complicated merging of contract names into 1 column is required)
-                WHEN array_join (array_agg (contract.name), '/') != '' THEN array_join (array_agg (contract.name), '/')
-                -- else tag it as 'unverified'
-                ELSE 'unverified'
+                WHEN array_join(array_agg (contract.name), '/') != '' THEN array_join(array_agg (contract.name), '/')
+                -- else tag it with 'no data'
+                ELSE 'yes (but no data on dune)'
             END
         )
         ELSE NULL
     END AS "Contract",
     cUSD.balance "cUSD Balance",
     cEUR.balance "cEUR Balance",
-    cREAL.balance "cREAL Balance"
+    cREAL.balance "cREAL Balance",
+    TIMESTAMP '{{snapshot time}}' as "Snapshot Time"
 FROM
     cUSD
     FULL OUTER JOIN cEUR ON cUSD.address = cEUR.address
@@ -292,6 +293,8 @@ FROM
     LEFT JOIN celo.contracts "contract" ON contract.address = COALESCE(cUSD.address, cEUR.address, cREAL.address)
     LEFT JOIN celo.creation_traces "creation_trace" ON creation_trace.address = COALESCE(cUSD.address, cEUR.address, cREAL.address)
     LEFT JOIN safe_celo.safes "gnosis_safe" ON gnosis_safe.address = COALESCE(cUSD.address, cEUR.address, cREAL.address)
+WHERE
+    COALESCE(cUSD.balance * cUSD.price, 0) + COALESCE(cEUR.balance * cEUR.price, 0) + COALESCE(cREAL.balance * cREAL.price, 0) > 10
 GROUP BY
     COALESCE(cUSD.address, cEUR.address, cREAL.address),
     COALESCE(cUSD.balance * cUSD.price, 0) + COALESCE(cEUR.balance * cEUR.price, 0) + COALESCE(cREAL.balance * cREAL.price, 0),
