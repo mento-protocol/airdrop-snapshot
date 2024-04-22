@@ -6,7 +6,7 @@ import type { StCeloBalances } from './index.js'
 /**
  * Generates final output CSV combining all snapshots into average balances sorted from highest to lowest
  */
-export default async function jenerateOutputCsv(
+export default async function generateOutputCsv(
   balances: StCeloBalances,
   outputPath: string
 ) {
