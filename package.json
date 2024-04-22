@@ -15,6 +15,7 @@
     "generate:cstableBalances:merge": "npx tsx src/snapshots/cstable-balances/merge-all-balances.ts",
     "generate:cstableVolume": "npx tsx src/snapshots/cstable-volume/index.ts",
     "generate:lockedCeloBalances": "npx tsx src/snapshots/locked-celo-balances/index.ts",
+    "generate:stCeloBalances": "npx tsx src/snapshots/stcelo-balances/index.ts",
     "checkSanctionedAddresses": "npx tsx src/helpers/check-sanctioned-addresses.ts",
     "lockedCelo:mapReleaseGold": "npx tsx src/snapshots/locked-celo-balances/release-gold/index.ts",
     "analyzeUnverifiedContract": "npx tsx src/helpers/get-signatures-from-bytecode.ts",
