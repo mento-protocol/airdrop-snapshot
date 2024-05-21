@@ -29,7 +29,7 @@ const safeAllocationsSplitAcrossOwners = await splitAllocationsAcrossOwners(
   safeAllocations
 )
 
-// Iterate over safeAddress with split allocations and insert them into the final-snapshots/airdrop-amounts-per-address-after-safe-split.csv
+// Iterate over safeAddress with split allocations and insert them into the final-snapshots/final-allocations-in-wei.csv
 await generateFinalAllocationsCsv(
   normalAllocations,
   safeAllocationsSplitAcrossOwners

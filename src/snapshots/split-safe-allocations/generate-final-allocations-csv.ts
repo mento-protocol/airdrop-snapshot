@@ -6,34 +6,40 @@ export default async function generateFinalAllocationsCsv(
   normalAllocations: Allocations,
   safeAllocationsSplitAcrossOwners: AllocationsSplitByOwner
 ) {
-  let result: Array<{ address: Address; allocation: BigInt }> = []
+  const finalAllocations: Allocations = {}
 
-  Object.keys(normalAllocations).forEach((address) => {
-    const allocation = normalAllocations[address as Address]
-    result.push({
-      address: address as Address,
-      allocation: allocation * BigInt(1e18),
-    })
+  Object.keys(normalAllocations).forEach((_address) => {
+    const address = _address.toLowerCase() as Address
+    const allocation = normalAllocations[address]
+    if (finalAllocations[address]) {
+      finalAllocations[address] += allocation
+    } else {
+      finalAllocations[address] = allocation
+    }
   })
 
   Object.keys(safeAllocationsSplitAcrossOwners).forEach((address) => {
     const owners = safeAllocationsSplitAcrossOwners[address as Address].owners
-    Object.entries(owners).forEach(([owner, allocation]) => {
-      result.push({
-        address: owner as Address,
-        allocation: allocation * BigInt(1e18),
-      })
+    Object.entries(owners).forEach(([_owner, allocation]) => {
+      const owner = _owner.toLowerCase() as Address
+      if (finalAllocations[owner]) {
+        finalAllocations[owner] += allocation
+      } else {
+        finalAllocations[owner] = allocation
+      }
     })
   })
 
-  result.sort((a, b) => Number(b.allocation) - Number(a.allocation))
+  const sortedEntries = Object.entries(finalAllocations).sort(
+    (a, b) => Number(b[1]) - Number(a[1])
+  )
+  const sortedAllocations = Object.fromEntries(sortedEntries)
 
   const csvData =
     'Address,Allocation\n' +
-    result.map((row) => `${row.address},${row.allocation}`).join('\n')
+    Object.entries(sortedAllocations)
+      .map((row) => `${row[0]},${row[1]}`)
+      .join('\n')
 
-  await fs.writeFile(
-    './final-snapshots/airdrop-amounts-per-address-after-safe-split.csv',
-    csvData
-  )
+  await fs.writeFile('./final-snapshots/final-allocations-in-wei.csv', csvData)
 }

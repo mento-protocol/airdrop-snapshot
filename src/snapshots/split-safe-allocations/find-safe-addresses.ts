@@ -2,9 +2,12 @@ import { parse } from 'csv-parse'
 import fs from 'node:fs'
 import path from 'node:path'
 import { finished } from 'node:stream/promises'
+import ora from 'ora'
 import type { Address } from 'viem'
+import bold from '../../helpers/bold.js'
 
 export default async function findSafeAddresses() {
+  const spinner = ora('Finding SAFE addresses in snapshots').start()
   // Init empty set to store SAFE addresses in
   const safeAddresses = new Set<Address>()
 
@@ -17,7 +20,7 @@ export default async function findSafeAddresses() {
 
   for (const file of snapshotFiles) {
     const filePath = path.join('./final-snapshots', file)
-    console.log(`Loading SAFE addresses from ${filePath}...`)
+    spinner.text = `Loading SAFE addresses from ${filePath}...`
 
     const parser = fs.createReadStream(filePath).pipe(parse({ columns: true }))
 
@@ -26,21 +29,21 @@ export default async function findSafeAddresses() {
         let row
         while ((row = parser.read()) !== null) {
           if (row['Contract'] === 'Gnosis Safe') {
-            safeAddresses.add(row['Address'])
+            safeAddresses.add(row['Address'].toLowerCase())
           }
         }
       })
-      .on('end', () => {
-        return
-      })
       .on('error', (error) => {
         console.error('Error while reading CSV file:', error)
+        spinner.fail()
       })
 
     await finished(parser)
   }
 
-  console.log('SAFE Addresses loaded:', safeAddresses.size)
+  spinner.succeed(
+    `SAFE Addresses found in snapshot CSVs: ${bold(safeAddresses.size)}`
+  )
 
   return safeAddresses
 }

@@ -4,6 +4,7 @@ import fs from 'node:fs'
 import { finished } from 'node:stream/promises'
 import ora from 'ora'
 import { Address } from 'viem'
+import findDuplicateKeys from '../../helpers/find-duplicate-keys.js'
 import type { Allocations } from './index.js'
 
 export default async function runSanityChecks(safeAddresses: Set<Address>) {
@@ -11,6 +12,15 @@ export default async function runSanityChecks(safeAddresses: Set<Address>) {
   const originalAllocations = await loadOriginalAllocations()
   const allocationsAfterSafeSplit = await loadAllocationsAfterSafeSplit()
   const safeOwners = await loadSafeOwners()
+
+  findDuplicateKeysInOriginalAllocations(originalAllocations)
+
+  ensureCorrectNoOfRecipients(
+    originalAllocations,
+    allocationsAfterSafeSplit,
+    safeAddresses,
+    safeOwners
+  )
 
   await ensureAllSafeOwnersHaveAllocations(
     safeOwners,
@@ -65,18 +75,28 @@ async function compareTotalAllocationBeforeAndAfterSplit(
     allocationsAfterSafeSplit
   ).reduce((acc, current) => acc + current, BigInt(0))
 
-  console.log(
-    'Total tokens allocated originally:',
-    totalTokensAllocatedOriginally
-  )
-  console.log(
-    'Total tokens allocated after safe split:',
-    totalTokensAllocatedAfterSafeSplit / BigInt(1e18)
-  )
+  // For Debugging
+  // console.log(
+  //   '\nTotal tokens allocated originally:',
+  //   bold((Number(totalTokensAllocatedOriginally) / 1e18).toLocaleString())
+  // )
+  // console.log(
+  //   'Total tokens allocated after safe split:',
+  //   bold((Number(totalTokensAllocatedAfterSafeSplit) / 1e18).toLocaleString()),
+  //   '\n'
+  // )
 
+  // There's a tiny difference between the two totals due to rounding errors so we can't check for strict equality
   assert(
-    totalTokensAllocatedAfterSafeSplit === totalTokensAllocatedOriginally,
-    "Total allocations after safe split don't match original allocations!"
+    totalTokensAllocatedAfterSafeSplit - totalTokensAllocatedOriginally <= 1n &&
+      totalTokensAllocatedOriginally - totalTokensAllocatedAfterSafeSplit >=
+        -1n,
+    `\nTotal allocations after safe split don't match original allocations!\n
+    Delta of 'Original Allocations — Post Safe Split Allocations': ${(
+      Number(
+        totalTokensAllocatedOriginally - totalTokensAllocatedAfterSafeSplit
+      ) / 1e18
+    ).toLocaleString()}\n`
   )
 }
 
@@ -110,7 +130,7 @@ async function loadOriginalAllocations() {
 
 async function loadAllocationsAfterSafeSplit() {
   const allocationsAfterSafeSplitFilePath =
-    './final-snapshots/airdrop-amounts-per-address-after-safe-split.csv'
+    './final-snapshots/final-allocations-in-wei.csv'
 
   const parser = fs
     .createReadStream(allocationsAfterSafeSplitFilePath)
@@ -122,7 +142,8 @@ async function loadAllocationsAfterSafeSplit() {
     .on('readable', function () {
       let row
       while ((row = parser.read()) !== null) {
-        allocationsAfterSafeSplit[row['Address']] = BigInt(row['Allocation'])
+        const address = row['Address'].toLowerCase()
+        allocationsAfterSafeSplit[address] = BigInt(row['Allocation'])
       }
     })
     .on('error', (error) => {
@@ -146,7 +167,7 @@ async function loadSafeOwners() {
     .on('readable', function () {
       let row
       while ((row = parser.read()) !== null) {
-        const address = row['Beneficiary']
+        const address = row['Beneficiary'].toLowerCase()
         safeOwners.add(address)
       }
     })
@@ -157,4 +178,53 @@ async function loadSafeOwners() {
   await finished(parser)
 
   return safeOwners
+}
+function findDuplicateKeysInOriginalAllocations(
+  originalAllocations: Allocations
+) {
+  const duplicates = findDuplicateKeys(originalAllocations, true)
+
+  if (duplicates.length > 0) {
+    throw new Error(
+      `Duplicate keys found in original allocations: ${duplicates.join(', ')}`
+    )
+  }
+}
+function ensureCorrectNoOfRecipients(
+  originalAllocations: Allocations,
+  allocationsAfterSafeSplit: Allocations,
+  safeAddresses: Set<string>,
+  safeOwners: Set<string>
+) {
+  const totalOriginalRecipients = Object.keys(originalAllocations).length
+  const totalRecipientsPostSplit = Object.keys(allocationsAfterSafeSplit).length
+
+  const safeOwnersAlreadyPresentInOriginalAllocations = Object.keys(
+    originalAllocations
+  ).filter((address) => {
+    return safeOwners.has(address)
+  }).length
+
+  // For Debugging
+  // console.log(
+  //   '\nOriginal Recipients:',
+  //   totalOriginalRecipients,
+  //   '\nRecipients Post Split:',
+  //   totalRecipientsPostSplit,
+  //   '\nTotal Safe Addresses:',
+  //   safeAddresses.size,
+  //   '\nSafe Owner Addresses:',
+  //   safeOwners.size,
+  //   '\nSafe Owners in Original Allo:',
+  //   safeOwnersAlreadyPresentInOriginalAllocations
+  // )
+
+  assert(
+    totalOriginalRecipients -
+      safeAddresses.size +
+      safeOwners.size -
+      safeOwnersAlreadyPresentInOriginalAllocations ===
+      totalRecipientsPostSplit,
+    'Number of recipients after safe split looks wrong!'
+  )
 }

@@ -39,13 +39,14 @@ async function loadOwnersForSafeFromOnchain(
   for (const [_safeAddress, allocationTotal] of Object.entries(
     safeAddressesWithAllocations
   )) {
-    const safeAddress = _safeAddress as Address
+    const safeAddress = _safeAddress.toLowerCase() as Address
     const owners = await getOwnersForSafeAddress(safeAddress as Address)
 
     // We don't need that much precision here so using lossy JS Number math should be ok
     const allocationPerOwner = allocationTotal / BigInt(owners.length)
 
-    for (const owner of owners) {
+    for (const _owner of owners) {
+      const owner = _owner.toLowerCase() as Address
       if (!safeAddressesWithSplitAllocations[safeAddress]) {
         safeAddressesWithSplitAllocations[safeAddress] = {
           owners: {},
@@ -61,8 +62,9 @@ async function loadOwnersForSafeFromOnchain(
 }
 
 async function getOwnersForSafeAddress(
-  safeAddress: Address
+  _safeAddress: Address
 ): Promise<Address[]> {
+  const safeAddress = _safeAddress.toLowerCase() as Address
   const spinner = ora(`Fetching SAFE owners for ${safeAddress}`).start()
 
   let owners: Address[]
@@ -97,14 +99,14 @@ async function loadOwnersForSafeFromCsv(
     .on('readable', function () {
       let row
       while ((row = parser.read()) !== null) {
-        const safeAddress = row['SAFE Address']
-        const ownerAddress = row['Beneficiary']
+        const safeAddress = row['SAFE Address'].toLowerCase()
+        const ownerAddress = row['Beneficiary'].toLowerCase()
         if (!allocations[safeAddress]) {
           allocations[safeAddress] = { owners: {} }
         }
 
         allocations[safeAddress].owners[ownerAddress] = BigInt(
-          row['Allocation'] * 1e18
+          row['Allocation']
         )
       }
     })
